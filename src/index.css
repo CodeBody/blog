@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Default light mode for Tailwind (if user changes system, but our default was dark)
+       Wait, let's stick to the example logic: root is dark, [data-theme="light"] is light.
+       But tailwind darkMode: 'class' uses .dark 
+       So let's map .dark to the dark colors, and :root to light colors, OR :root to dark colors if we want dark to be default.
+       The example used :root for dark, [data-theme="light"] for light.
+       Since we use Tailwind "class" dark mode, we'll map :root to light, and .dark to dark.
+    */
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-glass: rgba(255, 255, 255, 0.7);
+    --bg-glass-hover: rgba(255, 255, 255, 0.9);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    --brand-primary: #8b5cf6;
+    --brand-secondary: #3b82f6;
+    --gradient-brand: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+    --gradient-glow: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.15));
+    
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(0, 0, 0, 0.15);
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    --shadow-glow: 0 0 20px -5px rgba(139, 92, 246, 0.2);
+  }
+  
+  .dark {
+    --bg-primary: #0a0a0c;
+    --bg-secondary: #131316;
+    --bg-glass: rgba(19, 19, 22, 0.6);
+    --bg-glass-hover: rgba(19, 19, 22, 0.8);
+    --text-primary: #f3f3f5;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.15);
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 20px -5px rgba(139, 92, 246, 0.3);
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased transition-colors duration-300 ease-normal overflow-x-hidden;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-[1.8rem] py-[0.8rem] bg-[var(--text-primary)] text-[var(--bg-primary)] dark:bg-[var(--text-primary)] dark:text-[var(--bg-primary)] rounded-lg font-semibold text-[0.95rem] transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-[2px] hover:shadow-[0_10px_20px_-10px_var(--text-primary)];
+  }
+  
+  :root:not(.dark) .btn-primary {
+    @apply bg-[image:var(--gradient-brand)] text-white hover:shadow-glow;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-[1.8rem] py-[0.8rem] border border-border bg-transparent text-foreground rounded-lg font-semibold text-[0.95rem] hover:border-foreground hover:bg-background-secondary transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .input-field {
+    @apply flex h-12 w-full rounded-lg border border-border bg-background px-4 py-3 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:border-brand-primary disabled:cursor-not-allowed disabled:opacity-50 transition-colors;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+  }
+}
+
+/* Custom Markdown Styles */
+.prose {
+  @apply text-foreground leading-relaxed;
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  @apply font-display font-bold mt-8 mb-4 text-foreground tracking-tight;
+}
+.prose p {
+  @apply mb-4 text-muted-foreground;
+}
+.prose a {
+  @apply text-brand-secondary hover:underline;
+}
+.prose pre {
+  @apply bg-[#1e1e1e] rounded-xl p-6 overflow-x-auto mb-6 text-sm text-gray-300 shadow-sm border border-border;
+}
+.prose code {
+  @apply bg-background-secondary text-foreground px-1.5 py-0.5 rounded text-sm border border-border;
+}
+.prose pre code {
+  @apply bg-transparent text-gray-300 p-0 border-none;
+}
+.prose ul, .prose ol {
+  @apply ml-6 mb-4 text-muted-foreground;
+}
+.prose ul {
+  @apply list-disc;
+}
+.prose ol {
+  @apply list-decimal;
+}
+.prose blockquote {
+  @apply border-l-4 border-brand-primary pl-4 italic text-muted-foreground my-6 bg-glass p-4 rounded-r-xl;
+}
+.prose img {
+  @apply max-w-full rounded-xl my-8 object-cover shadow-sm border border-border;
+}

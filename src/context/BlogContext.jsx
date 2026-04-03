@@ -8,15 +8,20 @@ export const useBlog = () => useContext(BlogContext);
 
 export const BlogProvider = ({ children }) => {
   const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [profile, setProfile] = useState({});
 
   useEffect(() => {
-    // Fetch real articles from backend API
-    const loadArticles = async () => {
+    // Fetch real articles and categories from backend API
+    const loadData = async () => {
+      const { fetchCategories } = await import('../utils/api');
+      const cats = await fetchCategories();
+      setCategories(cats);
+
       const data = await fetchArticles();
       setArticles(data);
     };
-    loadArticles();
+    loadData();
 
     const storedProfile = localStorage.getItem('blog_profile');
     if (storedProfile) {
@@ -70,7 +75,7 @@ export const BlogProvider = ({ children }) => {
   };
 
   return (
-    <BlogContext.Provider value={{ articles, profile, addArticle, updateArticle, deleteArticle, updateProfile }}>
+    <BlogContext.Provider value={{ articles, categories, profile, addArticle, updateArticle, deleteArticle, updateProfile }}>
       {children}
     </BlogContext.Provider>
   );

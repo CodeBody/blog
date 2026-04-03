@@ -9,6 +9,7 @@ import ArticleDetail from '../pages/front/ArticleDetail';
 import About from '../pages/front/About';
 import Projects from '../pages/front/Projects';
 import Contact from '../pages/front/Contact';
+import KnowledgePlanetPage from '../pages/front/KnowledgePlanetPage';
 
 // Admin
 import AdminLayout from '../components/admin/AdminLayout';
@@ -32,7 +33,9 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'articles', element: <Home /> },
+      { path: 'category/:categoryId', element: <Home /> },
       { path: 'article/:id', element: <ArticleDetail /> },
+      { path: 'planet', element: <KnowledgePlanetPage /> },
       { path: 'about', element: <About /> },
       { path: 'projects', element: <Projects /> },
       { path: 'contact', element: <Contact /> },

@@ -11,6 +11,18 @@ export const fetchArticles = async () => {
   return [];
 };
 
+export const fetchCategories = async () => {
+  try {
+    const res = await fetch('/api/categories');
+    const data = await res.json();
+    if (data.code === 200) {
+      return data.data;
+    }
+  } catch (error) {
+    console.error('Fetch categories error:', error);
+  }
+  return [];
+};
 export const createArticle = async (article) => {
   const payload = {
     title: article.title,
@@ -54,7 +66,6 @@ const matchAbstractFromContent = (content) => {
   return content;
 };
 
-// This maps the structure returned by Spring Boot to what React components expect
 const adaptArticle = (item) => {
   return {
     id: String(item.id),
@@ -65,6 +76,7 @@ const adaptArticle = (item) => {
     date: item.publishedAt ? item.publishedAt.replace(' ', 'T') : new Date().toISOString(),
     tags: ["React"], // Minimal stub 
     views: item.views || 0,
-    status: item.status === 1 ? 'published' : 'draft'
+    status: item.status === 1 ? 'published' : 'draft',
+    categoryId: String(item.categoryId)
   };
 };

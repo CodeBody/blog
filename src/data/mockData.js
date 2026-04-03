@@ -1,5 +1,5 @@
 export const defaultProfile = {
-  name: "Alex Dev",
+  name: "夏了个天",
   bio: "Frontend Engineer & Design Enthusiast. I love building beautiful user interfaces and sharing what I learn.",
   avatar: "https://api.dicebear.com/7.x/notionists/svg?seed=Alex",
   socials: {

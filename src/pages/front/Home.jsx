@@ -1,15 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useBlog } from '../../context/BlogContext';
 import { formatDate } from '../../utils';
 import { Pagination } from '../../components/common/Pagination';
 import { Search } from 'lucide-react';
 
+// Animation Variants
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.1 }
+  }
+};
+
+const textReveal = {
+  hidden: { y: "120%", rotateZ: 2, opacity: 0 },
+  show: { 
+    y: "0%", 
+    rotateZ: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 80, damping: 20, mass: 1 } 
+  }
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } 
+  }
+};
+
 export default function Home() {
   const location = useLocation();
-  const isAllArticles = location.pathname === '/articles';
+  const { categoryId } = useParams();
   
-  const { articles } = useBlog();
+  const isAllArticles = location.pathname === '/articles';
+  const isCategoryFilter = !!categoryId;
+  
+  const { articles, categories } = useBlog();
   const [email, setEmail] = useState('');
   
   // Pagination & Search State
@@ -20,24 +52,29 @@ export default function Home() {
   useEffect(() => {
     setCurrentPage(1);
     // Reset scroll when searching or navigating
-    if (isAllArticles) {
+    if (isAllArticles || isCategoryFilter) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [searchQuery, location.pathname]);
+  }, [searchQuery, location.pathname, categoryId]);
 
   const publishedArticles = articles.filter(a => a.status === 'published');
   
-  const filteredArticles = isAllArticles 
-    ? publishedArticles.filter(a => 
-        a.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        a.abstract.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        a.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
+  const filteredArticles = isAllArticles || isCategoryFilter
+    ? publishedArticles.filter(a => {
+        if (categoryId && a.categoryId !== categoryId) return false;
+        
+        if (searchQuery) {
+          return a.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                 a.abstract.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                 a.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        }
+        return true;
+      })
     : publishedArticles;
 
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
 
-  const displayedArticles = isAllArticles 
+  const displayedArticles = isAllArticles || isCategoryFilter
     ? filteredArticles.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
     : publishedArticles.slice(0, 6);
 
@@ -48,14 +85,17 @@ export default function Home() {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 ease-in-out">
+    <div className="w-full">
       {/* Hero Section */}
-      {!isAllArticles && (
+      {!isAllArticles && !isCategoryFilter && (
       <section className="min-h-screen flex flex-col justify-center relative pt-20 pb-16 overflow-hidden">
         
-        {/* Artistic Atmospheric Background Image */}
-        <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full z-0 select-none pointer-events-none mix-blend-multiply opacity-80 dark:opacity-30">
-          <img 
+        {/* Artistic Atmospheric Background Image with Cinematic Scale */}
+        <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full z-0 select-none pointer-events-none mix-blend-multiply opacity-80 dark:opacity-30 overflow-hidden">
+          <motion.img 
+            initial={{ scale: 1.5, filter: "blur(10px)" }}
+            animate={{ scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
             src="https://images.unsplash.com/photo-1542224566-6e85f2e6772f?q=80&w=2600&auto=format&fit=crop" 
             alt="Mountains" 
             className="w-full h-full object-cover"
@@ -68,16 +108,43 @@ export default function Home() {
 
         <div className="max-w-6xl mx-auto px-6 lg:px-8 w-full relative z-10 flex flex-col items-start">
           <div className="border-l-[3px] border-foreground pl-8 max-w-4xl relative">
-            <div className="absolute top-0 left-[-3px] w-[3px] h-12 bg-brand-primary"></div>
-            <h1 className="font-display text-[clamp(2.8rem,5vw,5rem)] font-bold tracking-[0.05em] leading-[1.3] mb-8 text-foreground">
-              构建优雅的<br />
-              数字体验。
-            </h1>
-            <div className="text-[clamp(1rem,1.5vw,1.15rem)] text-muted-foreground font-sans font-normal max-w-xl mb-12 flex flex-col gap-3 leading-[1.8] tracking-widest hover:text-text-secondary transition-colors duration-500">
-              <p>你好，我是 Alex。</p>
+            <motion.div 
+              initial={{ height: 0 }}
+              animate={{ height: "3rem" }}
+              transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute top-0 left-[-3px] w-[3px] bg-brand-primary"
+            ></motion.div>
+            
+            <motion.h1 
+              variants={staggerContainer}
+              initial="hidden"
+              animate="show"
+              className="font-display text-[clamp(2.8rem,5vw,5rem)] font-bold tracking-[0.05em] leading-[1.3] mb-8 text-foreground"
+            >
+              <div className="overflow-hidden pb-2">
+                <motion.div variants={textReveal} className="origin-bottom-left">构建优雅的</motion.div>
+              </div>
+              <div className="overflow-hidden pb-4">
+                <motion.div variants={textReveal} className="origin-bottom-left">数字体验。</motion.div>
+              </div>
+            </motion.h1>
+            
+            <motion.div 
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              className="text-[clamp(1rem,1.5vw,1.15rem)] text-muted-foreground font-sans font-normal max-w-xl mb-12 flex flex-col gap-3 leading-[1.8] tracking-widest transition-colors duration-500"
+            >
+              <p>你好，我是 夏了个天。</p>
               <p>一名深耕于代码与设计交汇处的独立开发者。在这里记录技术实践、审美反思，以及对于数字世界的种种思考。</p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-6">
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col sm:flex-row gap-6"
+            >
               <a href="#articles" className="btn-primary" onClick={(e) => {
                  e.preventDefault();
                  document.getElementById('articles').scrollIntoView({ behavior: 'smooth' });
@@ -90,21 +157,29 @@ export default function Home() {
               }}>
                 建立联系
               </a>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
       )}
 
       {/* Articles Section */}
-      <section id="articles" className={`py-24 relative z-10 max-w-6xl mx-auto px-6 lg:px-8 w-full ${isAllArticles ? 'pt-32' : ''}`}>
-        <div className="flex flex-wrap sm:flex-nowrap justify-between items-end border-b-2 border-foreground pb-6 mb-16 gap-6">
+      <section id="articles" className={`py-24 relative z-10 max-w-6xl mx-auto px-6 lg:px-8 w-full ${(isAllArticles || isCategoryFilter) ? 'pt-32' : ''}`}>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-wrap sm:flex-nowrap justify-between items-end border-b-2 border-foreground pb-6 mb-16 gap-6"
+        >
           <h2 className="font-display text-[2rem] font-bold tracking-[0.1em]">
-            {isAllArticles ? '全部文章' : '近期更新'}
+            {isCategoryFilter 
+              ? `分类群像: ${categories?.find(c => String(c.id) === categoryId)?.name || ''}` 
+              : (isAllArticles ? '全部文章' : '近期更新')}
           </h2>
           
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            {isAllArticles && (
+            {(isAllArticles || isCategoryFilter) && (
               <div className="relative flex-1 sm:w-72">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
@@ -117,7 +192,7 @@ export default function Home() {
               </div>
             )}
             
-            {!isAllArticles ? (
+            {!(isAllArticles || isCategoryFilter) ? (
               <Link to="/articles" className="text-muted-foreground font-sans font-medium hover:text-foreground transition-colors whitespace-nowrap mb-1 tracking-widest text-sm relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-foreground hover:after:w-full after:transition-all after:duration-300">
                 浏览全部专栏 →
               </Link>
@@ -127,25 +202,31 @@ export default function Home() {
               </Link>
             )}
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
           {displayedArticles.length > 0 ? displayedArticles.map((article, index) => (
-             <article 
+             <motion.article 
               key={article.id} 
-              className="group flex flex-col bg-background-secondary border border-border rounded-xl flex-hidden overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1"
-              style={{ animationDelay: `${index * 0.05}s` }}
+              initial={{ opacity: 0, y: 50, rotateX: 5 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: (index % 3) * 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="group flex flex-col bg-background-secondary border border-border rounded-xl flex-hidden overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-2"
             >
               <Link to={`/article/${article.id}`} className="block relative w-full pt-[65%] overflow-hidden border-b border-border">
-                <img 
+                <motion.img 
                   src={article.coverImage || `https://images.unsplash.com/photo-${1500000000000 + (parseInt(article.id) * 1234 || 1)}?auto=format&fit=crop&w=800&q=80`} 
                   alt={article.title}
                   onError={(e) => {
                     e.target.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${article.id}&backgroundColor=ffffff,f7f7f7&textColor=1a1a1a`;
                   }}
-                  className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
+                  whileHover={{ scale: 1.08 }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 />
+                <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors duration-500 pointer-events-none"></div>
                 {article.tags[0] && (
                   <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm text-foreground px-3 py-1 text-xs font-sans tracking-widest border border-border rounded-sm">
                     {article.tags[0]}
@@ -169,7 +250,7 @@ export default function Home() {
                   {article.abstract}
                 </p>
               </div>
-            </article>
+            </motion.article>
           )) : (
             <div className="col-span-full text-center py-20 text-muted-foreground text-lg tracking-widest font-sans">
               未找到相关内容。
@@ -178,7 +259,12 @@ export default function Home() {
         </div>
 
         {isAllArticles && filteredArticles.length > 0 && (
-          <div className="mt-16 border-t border-border pt-12">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="mt-16 border-t border-border pt-12"
+          >
             <Pagination 
               currentPage={currentPage} 
               totalPages={totalPages} 
@@ -187,12 +273,19 @@ export default function Home() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }} 
             />
-          </div>
+          </motion.div>
         )}
       </section>
 
       {/* Newsletter Section */}
-      <section id="newsletter" className="py-24 max-w-6xl mx-auto px-6 lg:px-8 w-full mt-12 border-t border-border">
+      <motion.section 
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        id="newsletter" 
+        className="py-24 max-w-6xl mx-auto px-6 lg:px-8 w-full mt-12 border-t border-border"
+      >
         <div className="flex flex-col md:flex-row items-center justify-between gap-12">
           
           <div className="flex-1 text-center md:text-left">
@@ -217,7 +310,7 @@ export default function Home() {
             </button>
           </form>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 }

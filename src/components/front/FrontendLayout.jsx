@@ -39,9 +39,10 @@ const Header = () => {
   const toggleTheme = () => setDarkMode(!darkMode);
 
   const navLinks = [
-    { name: 'About', path: '/about' },
+    { name: 'GALAXY', path: '/planet' },
     { name: 'Articles', path: '/' },
     { name: 'Projects', path: '/projects' },
+    { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -51,7 +52,7 @@ const Header = () => {
         <div className="flex justify-between items-center">
           <Link to="/" className="shrink-0 flex items-center">
             <span className="font-display text-[1.5rem] font-[800] tracking-[-0.03em] bg-foreground text-transparent bg-clip-text transition-all duration-300 hover:gradient-text">
-              {profile?.name ? profile.name.split(' ')[0] + '.' : 'Alex.'}
+              {profile?.name || '夏了个天.'}
             </span>
           </Link>
 

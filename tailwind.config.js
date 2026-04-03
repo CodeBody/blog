@@ -35,8 +35,8 @@ export default {
         'gradient-glow': 'var(--gradient-glow)',
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'sans-serif'],
-        display: ['Outfit', 'Inter', 'sans-serif'],
+        sans: ['"Noto Sans SC"', '"PingFang SC"', 'sans-serif'],
+        display: ['"Noto Serif SC"', '"Source Han Serif SC"', 'serif'],
       },
       boxShadow: {
         sm: 'var(--shadow-sm)',

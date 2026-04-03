@@ -1,55 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Default light mode for Tailwind (if user changes system, but our default was dark)
-       Wait, let's stick to the example logic: root is dark, [data-theme="light"] is light.
-       But tailwind darkMode: 'class' uses .dark 
-       So let's map .dark to the dark colors, and :root to light colors, OR :root to dark colors if we want dark to be default.
-       The example used :root for dark, [data-theme="light"] for light.
-       Since we use Tailwind "class" dark mode, we'll map :root to light, and .dark to dark.
-    */
-    --bg-primary: #f8fafc;
-    --bg-secondary: #ffffff;
-    --bg-glass: rgba(255, 255, 255, 0.7);
-    --bg-glass-hover: rgba(255, 255, 255, 0.9);
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
+    --bg-primary: #F7F7F7;
+    --bg-secondary: #FFFFFF;
+    --bg-glass: rgba(247, 247, 247, 0.85);
+    --bg-glass-hover: rgba(247, 247, 247, 0.95);
+    --text-primary: #1A1A1A;
+    --text-secondary: #525252;
+    --text-muted: #A3A3A3;
     
-    --brand-primary: #8b5cf6;
-    --brand-secondary: #3b82f6;
-    --gradient-brand: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
-    --gradient-glow: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.15));
+    --brand-primary: #8B2626;
+    --brand-secondary: #1A1A1A;
+    --gradient-brand: none;
+    --gradient-glow: none;
     
-    --border-color: rgba(0, 0, 0, 0.08);
-    --border-hover: rgba(0, 0, 0, 0.15);
-    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-    --shadow-glow: 0 0 20px -5px rgba(139, 92, 246, 0.2);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-hover: rgba(0, 0, 0, 0.25);
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-glow: none;
   }
   
   .dark {
-    --bg-primary: #0a0a0c;
-    --bg-secondary: #131316;
-    --bg-glass: rgba(19, 19, 22, 0.6);
-    --bg-glass-hover: rgba(19, 19, 22, 0.8);
-    --text-primary: #f3f3f5;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
+    --bg-primary: #0F0F0F;
+    --bg-secondary: #171717;
+    --bg-glass: rgba(15, 15, 15, 0.85);
+    --bg-glass-hover: rgba(15, 15, 15, 0.95);
+    --text-primary: #EDEDED;
+    --text-secondary: #A3A3A3;
+    --text-muted: #525252;
     
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(255, 255, 255, 0.15);
-    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 20px -5px rgba(139, 92, 246, 0.3);
+    --border-color: rgba(255, 255, 255, 0.15);
+    --border-hover: rgba(255, 255, 255, 0.3);
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-glow: none;
   }
 
   body {
     @apply bg-background text-foreground antialiased transition-colors duration-300 ease-normal overflow-x-hidden;
-    font-family: 'Inter', system-ui, sans-serif;
   }
   
   html {
@@ -60,15 +54,11 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center px-[1.8rem] py-[0.8rem] bg-[var(--text-primary)] text-[var(--bg-primary)] dark:bg-[var(--text-primary)] dark:text-[var(--bg-primary)] rounded-lg font-semibold text-[0.95rem] transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-[2px] hover:shadow-[0_10px_20px_-10px_var(--text-primary)];
-  }
-  
-  :root:not(.dark) .btn-primary {
-    @apply bg-[image:var(--gradient-brand)] text-white hover:shadow-glow;
+    @apply inline-flex items-center justify-center px-[2rem] py-[0.75rem] bg-foreground text-background border border-foreground rounded-none font-medium tracking-widest text-[0.9rem] transition-all duration-300 focus:outline-none hover:bg-background hover:text-foreground;
   }
   
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-[1.8rem] py-[0.8rem] border border-border bg-transparent text-foreground rounded-lg font-semibold text-[0.95rem] hover:border-foreground hover:bg-background-secondary transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-[2rem] py-[0.75rem] border border-border bg-transparent text-foreground rounded-none font-sans tracking-widest text-[0.9rem] hover:border-foreground transition-all duration-300 focus:outline-none;
   }
   
   .input-field {
@@ -78,11 +68,7 @@
 
 @layer utilities {
   .gradient-text {
-    background: var(--gradient-brand);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    display: inline-block;
+    @apply text-foreground font-display;
   }
 }
 

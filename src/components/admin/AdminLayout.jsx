@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, Menu, X, Moon, Sun, Search, Bell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useBlog } from '../../context/BlogContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminLayout() {
   const { logout } = useAuth();
@@ -10,6 +11,22 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('theme') !== 'light';
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
+
+  const toggleTheme = () => setDarkMode(!darkMode);
 
   const handleLogout = () => {
     logout();
@@ -17,130 +34,137 @@ export default function AdminLayout() {
   };
 
   const navItems = [
-    { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin' },
-    { label: 'New Article', icon: <FileText size={20} />, path: '/admin/article/new' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
+    { label: '概览', icon: <LayoutDashboard size={18} />, path: '/admin' },
+    { label: '写作', icon: <FileText size={18} />, path: '/admin/article/new' },
+    { label: '偏好', icon: <Settings size={18} />, path: '/admin/settings' },
   ];
 
   return (
-    <div className="min-h-screen flex bg-muted/10 relative overflow-hidden">
-      {/* Ambient Glow */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden fixed">
-        <div className="absolute -top-[10%] -left-[5%] w-[50%] h-[50%] rounded-full blur-[120px] bg-brand-primary/10 animate-float mix-blend-screen" />
-        <div className="absolute top-[30%] -right-[10%] w-[40%] h-[60%] rounded-full blur-[150px] bg-brand-secondary/10 animate-float [animation-delay:3s] mix-blend-screen" />
-      </div>
+    <div className="min-h-screen flex bg-background text-foreground transition-colors duration-500 font-sans selection:bg-brand-primary selection:text-white">
+      
+      {/* Editorial Navigation Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-background border-r border-border transition-transform duration-700 ease-[0.16,1,0.3,1] lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-full flex flex-col p-8 pt-12">
+          {/* Brand */}
+          <div className="mb-16">
+            <Link to="/" className="group block">
+              <span className="font-display text-2xl font-black tracking-tighter text-foreground group-hover:text-brand-primary transition-colors duration-300">
+                编辑器<span className="text-brand-primary">.</span>
+              </span>
+              <p className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground mt-2 font-bold opacity-50">内容引擎</p>
+            </Link>
+          </div>
 
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
-
-      {/* Desktop Wrapper for Floating Island */}
-      <div className="hidden md:flex flex-col w-[20rem] p-6 z-10 shrink-0 h-screen sticky top-0">
-        <aside className="w-full h-full bg-background/60 backdrop-blur-2xl border border-white/10 dark:border-white/5 rounded-3xl shadow-glow overflow-hidden flex flex-col transition-all duration-300">
-          <div className="flex items-center justify-between h-20 px-8 border-b border-border/40">
-            <Link to="/" className="text-xl font-display font-bold tracking-tight bg-clip-text text-transparent bg-gradient-brand">Admin Console</Link>
-          <button className="md:hidden text-muted-foreground hover:text-primary" onClick={() => setSidebarOpen(false)}>
-            <X size={24} />
-          </button>
-        </div>
-
-        <div className="flex flex-col justify-between h-[calc(100vh-5rem)]">
-          <nav className="p-4 space-y-1">
-            {navItems.map(item => {
+          {/* Navigation Items */}
+          <nav className="flex-1 space-y-2">
+            {navItems.map((item) => {
               const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
               return (
                 <Link
                   key={item.label}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`relative flex items-center gap-4 px-5 py-3.5 rounded-2xl text-[0.95rem] font-medium transition-all group overflow-hidden ${
-                    isActive
-                      ? 'text-foreground bg-primary/5 shadow-sm'
-                      : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
-                  }`}
+                  className={`group flex items-center gap-4 px-4 py-3 transition-all duration-300 relative ${isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                  {isActive && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-brand-primary rounded-r-full shadow-glow" />
-                  )}
-                  {isActive && (
-                    <span className="absolute inset-0 bg-gradient-to-r from-brand-primary/10 to-transparent opacity-50" />
-                  )}
-                  <span className={`relative z-10 transition-transform duration-300 ${isActive ? 'scale-110 text-brand-primary' : 'group-hover:scale-110'}`}>
+                  <span className={`transition-transform duration-500 ${isActive ? 'scale-110 text-brand-primary' : 'group-hover:translate-x-1'}`}>
                     {item.icon}
                   </span>
-                  <span className="relative z-10 tracking-wide">{item.label}</span>
+                  <span className={`text-sm font-semibold tracking-wide transition-all duration-300 ${isActive ? 'translate-x-1' : ''}`}>
+                    {item.label}
+                  </span>
+                  {isActive && (
+                    <motion.div 
+                      layoutId="sidebar-active"
+                      className="absolute left-0 w-1 h-6 bg-brand-primary rounded-r-full"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
                 </Link>
               );
             })}
           </nav>
-          
-          <div className="p-5 border-t border-border/40 mt-auto bg-muted/10">
-            <div className="flex items-center gap-3 mb-6 px-4">
-              <img src={profile?.avatar || "https://api.dicebear.com/7.x/notionists/svg?seed=Alex"} alt="Avatar" className="w-11 h-11 rounded-xl border border-border/50 shadow-sm" />
+
+          {/* User Profile & Footer Area */}
+          <div className="mt-auto space-y-8 pt-8 border-t border-border/50">
+            <div className="flex items-center gap-4 px-2">
+              <div className="w-10 h-10 rounded-full border border-border overflow-hidden bg-muted/20 p-0.5">
+                <img src={profile?.avatar || "https://api.dicebear.com/7.x/notionists/svg?seed=Admin"} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+              </div>
               <div className="overflow-hidden">
-                <p className="text-sm font-bold truncate tracking-tight">{profile?.name || 'Admin User'}</p>
-                <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground truncate mt-0.5">Workspace Owner</p>
+                <p className="text-xs font-bold truncate tracking-tight">{profile?.name || '系统管理员'}</p>
+                <button onClick={handleLogout} className="text-[0.6rem] uppercase tracking-wider text-muted-foreground hover:text-brand-primary transition-colors flex items-center gap-1 font-bold">
+                  <LogOut size={10} /> 退出登录
+                </button>
               </div>
             </div>
-            <button 
-              onClick={handleLogout}
-              className="flex w-full items-center justify-center gap-3 px-4 py-3 border border-border/50 rounded-xl text-sm font-medium text-foreground hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition-all duration-300 group"
-            >
-              <LogOut size={18} className="transition-transform group-hover:-translate-x-1" />
-              Sign Out
-            </button>
-          </div>
-        </div>
-        </aside>
-      </div>
 
-      {/* Mobile Sidebar (fallback) */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-background/90 backdrop-blur-2xl border-r border-border transform transition-transform duration-500 md:hidden flex flex-col ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between h-20 px-6 border-b border-border/40">
-          <Link to="/" className="text-xl font-display font-bold tracking-tight bg-clip-text text-transparent bg-gradient-brand">Admin Console</Link>
-          <button className="text-muted-foreground hover:text-primary" onClick={() => setSidebarOpen(false)}>
-            <X size={24} />
-          </button>
-        </div>
-        <div className="flex flex-col justify-between h-[calc(100vh-5rem)]">
-          <nav className="p-4 space-y-1">
-            {navItems.map(item => {
-              const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
-              return (
-                <Link
-                  key={item.label}
-                  to={item.path}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`relative flex items-center gap-4 px-5 py-4 rounded-2xl text-[0.95rem] font-medium transition-all group overflow-hidden ${isActive ? 'text-foreground bg-primary/5' : 'text-muted-foreground hover:bg-muted/40'}`}
-                >
-                  <span className={`relative z-10 ${isActive ? 'text-brand-primary' : ''}`}>{item.icon}</span>
-                  <span className="relative z-10">{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-          <div className="p-5 mt-auto">
-            <button onClick={handleLogout} className="flex w-full items-center justify-center gap-3 px-4 py-4 bg-muted/50 rounded-xl text-sm font-medium text-foreground hover:bg-red-500/10 hover:text-red-500 transition-all">
-              <LogOut size={18} /> Sign Out
-            </button>
+            <div className="flex items-center justify-between px-2">
+              <button 
+                onClick={toggleTheme}
+                className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground transition-all duration-300"
+              >
+                {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+              </button>
+              <div className="text-[0.6rem] text-muted-foreground/30 font-bold tracking-[0.1em]">版本 2.0.4</div>
+            </div>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 z-10">
-        <header className="h-16 flex items-center gap-4 px-4 sm:px-6 lg:px-8 border-b border-border bg-background md:hidden">
-            <button onClick={() => setSidebarOpen(true)} className="text-muted-foreground hover:text-primary">
-              <Menu size={24} />
-            </button>
-            <span className="font-semibold">Admin Panel</span>
+      {/* Main Content Area */}
+      <div className="flex-1 lg:pl-[280px] min-h-screen flex flex-col relative overflow-hidden">
+        
+        {/* Subtle Background Texture/Glow */}
+        <div className="absolute top-0 right-0 w-[60%] h-[40%] bg-brand-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+        
+        {/* Mobile Header */}
+        <header className="lg:hidden h-16 flex items-center justify-between px-6 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-40">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 text-muted-foreground hover:text-foreground">
+            <Menu size={20} />
+          </button>
+          <span className="font-display font-black tracking-tighter">编辑器.</span>
+          <div className="w-8" /> {/* Placeholder for balance */}
         </header>
 
-        <main className="flex-1 p-4 sm:p-8 lg:p-10 lg:pr-12 overflow-y-auto overflow-x-hidden custom-scrollbar max-w-7xl">
-          <Outlet />
+        {/* Desktop Top Bar (Minimalist) */}
+        <header className="hidden lg:flex h-20 items-center justify-end px-12 z-20">
+          <div className="flex items-center gap-6">
+            <div className="relative group hidden xl:block">
+              <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within:text-brand-primary transition-colors" />
+              <input 
+                type="text" 
+                placeholder="搜索..." 
+                className="bg-transparent pl-7 pr-4 py-2 text-[0.65rem] font-bold tracking-[0.1em] focus:outline-none placeholder:text-muted-foreground/30 w-48 transition-all focus:w-64" 
+              />
+            </div>
+            <button className="text-muted-foreground hover:text-foreground transition-colors relative">
+              <Bell size={18} />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-primary rounded-full border-2 border-background" />
+            </button>
+          </div>
+        </header>
+
+        {/* Page Container */}
+        <main className="flex-1 p-6 lg:p-12 lg:pt-4 relative z-10 max-w-7xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="h-full"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
+
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm lg:hidden transition-all duration-500" onClick={() => setSidebarOpen(false)} />
+      )}
     </div>
   );
 }

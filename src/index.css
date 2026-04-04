@@ -70,6 +70,30 @@
   .gradient-text {
     @apply text-foreground font-display;
   }
+
+  .cinematic-mask-left {
+    -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+  }
+
+  .cinematic-mask-bottom {
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+  }
+
+  .editorial-card {
+    @apply bg-background-secondary border border-border transition-all duration-500 hover:shadow-glow hover:border-brand-primary;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full hover:bg-muted transition-colors;
+  }
 }
 
 /* Custom Markdown Styles */

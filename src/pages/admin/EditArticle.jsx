@@ -1,36 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useBlog } from '../../context/BlogContext';
-import { ArrowLeft, Save, Image as ImageIcon, X } from 'lucide-react';
-import { Button } from '../../components/common/Button';
-import { Input } from '../../components/common/Input';
-import { Textarea } from '../../components/common/Textarea';
+import { ArrowLeft, Save, Image as ImageIcon, X, Command, Eye, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Select from 'react-select';
 import MDEditor from '@uiw/react-md-editor';
 
 const TAG_OPTIONS = [
   { value: 'React', label: 'React' },
   { value: 'Vue.js', label: 'Vue.js' },
-  { value: 'Angular', label: 'Angular' },
   { value: 'TypeScript', label: 'TypeScript' },
   { value: 'JavaScript', label: 'JavaScript' },
   { value: 'Node.js', label: 'Node.js' },
   { value: 'Next.js', label: 'Next.js' },
-  { value: 'Nuxt.js', label: 'Nuxt.js' },
-  { value: 'Vite', label: 'Vite' },
-  { value: 'Webpack', label: 'Webpack' },
-  { value: 'CSS', label: 'CSS' },
   { value: 'TailwindCSS', label: 'TailwindCSS' },
-  { value: 'HTML DOM', label: 'HTML DOM' },
   { value: 'AI', label: 'AI' },
   { value: 'LLM', label: 'LLM' },
-  { value: 'ChatGPT', label: 'ChatGPT' },
-  { value: 'Open Source', label: 'Open Source' },
   { value: 'Deep Dive', label: 'Deep Dive' },
-  { value: 'Machine Learning', label: 'Machine Learning' },
-  { value: 'Prompt Engineering', label: 'Prompt Engineering' },
-  { value: 'RAG', label: 'RAG' },
-  { value: 'Web3', label: 'Web3' },
+  { value: 'Open Source', label: 'Open Source' },
+  { value: 'Design', label: 'Design' },
+  { value: 'Experience', label: 'Experience' },
 ];
 
 export default function EditArticle() {
@@ -86,21 +75,14 @@ export default function EditArticle() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.title || !formData.content) {
-      alert("Title and content are required.");
+      alert("请填写标题和内容。");
       return;
     }
 
-    const tagsArray = formData.tags || [];
-    
     if (isNew) {
       addArticle({
         id: Date.now().toString(),
-        title: formData.title,
-        abstract: formData.abstract,
-        tags: tagsArray.length > 0 ? tagsArray : ['Blog'],
-        status: formData.status,
-        content: formData.content,
-        coverImage: formData.coverImage,
+        ...formData,
         author: profile?.name || 'Admin',
         date: new Date().toISOString(),
         views: 0
@@ -108,12 +90,7 @@ export default function EditArticle() {
     } else {
       updateArticle({
         ...existingArticle,
-        title: formData.title,
-        abstract: formData.abstract,
-        tags: tagsArray.length > 0 ? tagsArray : ['Blog'],
-        status: formData.status,
-        content: formData.content,
-        coverImage: formData.coverImage
+        ...formData
       });
     }
 
@@ -124,160 +101,153 @@ export default function EditArticle() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file.');
-      return;
-    }
-
     const reader = new FileReader();
     reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        const max_width = 1200; // max reasonable width for web
-
-        if (width > max_width) {
-          height = Math.round((height * max_width) / width);
-          width = max_width;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Compress and convert to base64
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-        setFormData(prev => ({ ...prev, coverImage: dataUrl }));
-      };
-      img.src = event.target.result;
+      setFormData(prev => ({ ...prev, coverImage: event.target.result }));
     };
     reader.readAsDataURL(file);
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in max-w-5xl mx-auto pb-12">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-6">
-        <div className="flex items-center gap-4">
-          <Link to="/admin" className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={20} />
+    <div className="max-w-6xl mx-auto pb-24">
+      {/* Editorial Header Bar */}
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between mb-12 pb-6 border-b border-border"
+      >
+        <div className="flex items-center gap-6">
+          <Link to="/admin" className="w-10 h-10 flex items-center justify-center border border-border hover:border-foreground transition-colors group">
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           </Link>
-          <h1 className="text-2xl font-bold">{isNew ? 'Create Article' : 'Edit Article'}</h1>
-        </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Button onClick={handleSubmit} className="flex-1 sm:flex-none">
-            <Save size={16} className="mr-2" />
-            Save {formData.status === 'published' ? 'Publish' : 'Draft'}
-          </Button>
-        </div>
-      </div>
-
-      <form className="space-y-8" onSubmit={handleSubmit}>
-        <div className="grid gap-6">
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div className="space-y-2 sm:col-span-2">
-              <label className="text-sm font-medium">Cover Image</label>
-              {formData.coverImage ? (
-                <div className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden group border border-border bg-muted">
-                  <img src={formData.coverImage} alt="Cover Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                    <button type="button" onClick={() => setFormData(prev => ({ ...prev, coverImage: '' }))} className="bg-red-500 hover:bg-red-600 text-white shadow-lg inline-flex items-center justify-center px-4 py-2 rounded-lg font-semibold text-sm transition-colors">
-                      <X size={16} className="mr-2" /> Remove Cover
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer bg-background hover:bg-muted/30 transition-colors">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6 text-muted-foreground">
-                    <ImageIcon size={28} className="mb-2 opacity-50" />
-                    <p className="text-sm font-medium">Click to upload cover image</p>
-                    <p className="text-xs mt-1">JPEG, PNG, WEBP (auto-compressed)</p>
-                  </div>
-                  <input type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleImageUpload} />
-                </label>
-              )}
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <label className="text-sm font-medium">Title *</label>
-              <Input 
-                name="title" 
-                value={formData.title} 
-                onChange={handleChange} 
-                placeholder="Article Title"
-                className="text-lg font-medium"
-              />
-            </div>
-            <div className="space-y-2 text-sm z-10">
-              <label className="text-sm font-medium">Tags</label>
-              <Select 
-                isMulti
-                name="tags" 
-                options={TAG_OPTIONS}
-                value={TAG_OPTIONS.filter(option => formData.tags.includes(option.value))}
-                onChange={(selected) => {
-                  setFormData(prev => ({ 
-                    ...prev, 
-                    tags: selected ? selected.map(s => s.value) : [] 
-                  }));
-                }}
-                unstyled
-                classNames={{
-                  control: (state) => `flex min-h-[40px] w-full rounded-md border border-border bg-transparent px-3 py-1.5 text-sm transition-colors cursor-text ${state.isFocused ? 'ring-2 ring-brand-primary ring-offset-2 ring-offset-background' : ''}`,
-                  menu: () => "mt-1.5 rounded-md border border-border bg-card text-card-foreground shadow-md z-50 overflow-hidden",
-                  menuList: () => "py-1",
-                  option: (state) => `relative flex w-full cursor-default select-none items-center py-1.5 px-3 text-sm outline-none transition-colors ${state.isFocused ? 'bg-background text-foreground' : ''} ${state.isSelected ? 'bg-brand-primary/20 text-brand-primary font-medium' : ''} active:bg-brand-primary/30`,
-                  multiValue: () => "inline-flex items-center rounded-sm bg-background px-2 py-0.5 text-xs font-semibold text-foreground border border-border mr-1.5 my-0.5",
-                  multiValueLabel: () => "mr-1",
-                  multiValueRemove: () => "hover:bg-red-500 hover:text-white cursor-pointer rounded-sm px-0.5 aspect-square flex items-center justify-center transition-colors",
-                  input: () => "text-foreground m-0 p-0",
-                  placeholder: () => "text-muted-foreground inline-flex items-center",
-                  valueContainer: () => "flex-wrap gap-y-1 py-0.5",
-                  dropdownIndicator: () => "text-muted-foreground hover:text-foreground transition-colors p-1 cursor-pointer",
-                  clearIndicator: () => "text-muted-foreground hover:text-foreground transition-colors p-1 cursor-pointer",
-                  indicatorSeparator: () => "bg-border mx-2 my-2 w-[1px]",
-                  noOptionsMessage: () => "text-muted-foreground p-3 text-center text-sm"
-                }}
-                placeholder="Select or search tags..."
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
-              <select 
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="flex h-10 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all"
-              >
-                <option value="draft" className="bg-background text-foreground">Draft</option>
-                <option value="published" className="bg-background text-foreground">Published</option>
-              </select>
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <label className="text-sm font-medium">Abstract (Short description)</label>
-              <Textarea 
-                name="abstract" 
-                value={formData.abstract} 
-                onChange={handleChange} 
-                placeholder="A brief summary of the article..."
-                className="min-h-[80px]"
-              />
-            </div>
+          <div className="space-y-1">
+            <h1 className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-widest">{isNew ? '新文稿' : '文稿润色'}</h1>
+            <p className="text-xs font-bold tracking-widest text-foreground/40">{formData.status === 'published' ? '准备发布' : '草稿状态'}</p>
           </div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+           <button onClick={() => window.open('/articles', '_blank')} className="w-10 h-10 flex items-center justify-center border border-border hover:border-foreground transition-colors group" title="预览">
+             <Eye size={18} />
+           </button>
+           <button 
+             onClick={handleSubmit} 
+             className="btn-primary group flex items-center gap-3"
+           >
+             <Save size={16} />
+             {isNew ? '发布文章' : '更新文章'}
+           </button>
+        </div>
+      </motion.div>
 
-          <div className="space-y-2 flex flex-col mt-4" data-color-mode={colorMode}>
-            <label className="text-sm font-medium flex justify-between">
-              <span>Markdown Content *</span>
-              <span className="text-muted-foreground text-xs">Supports GFM, Real-time Preview</span>
+      <form onSubmit={handleSubmit} className="space-y-16">
+        {/* Cinematic Cover Upload */}
+        <section className="relative h-[400px] group overflow-hidden border border-border bg-muted/5">
+          {formData.coverImage ? (
+            <>
+              <img src={formData.coverImage} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Cover" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center backdrop-blur-sm">
+                 <button type="button" onClick={() => setFormData(p => ({...p, coverImage: ''}))} className="px-6 py-3 bg-red-500 text-white text-xs font-bold tracking-widest uppercase transition-all hover:scale-105">
+                   移除封面图
+                 </button>
+              </div>
+            </>
+          ) : (
+            <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/10 transition-colors group">
+               <div className="p-6 border border-dashed border-border/60 group-hover:border-brand-primary/50 transition-colors flex flex-col items-center gap-4">
+                  <ImageIcon size={32} className="text-muted-foreground/30 group-hover:text-brand-primary/50 transition-colors" />
+                  <span className="text-[0.6rem] font-bold tracking-widest text-muted-foreground/40 group-hover:text-brand-primary transition-colors">设置封面图</span>
+               </div>
+               <input type="file" className="hidden" onChange={handleImageUpload} />
             </label>
-            <MDEditor
-              value={formData.content}
-              onChange={(val) => setFormData(prev => ({ ...prev, content: val || '' }))}
-              height={500}
-              className="mt-1 border border-border overflow-hidden rounded-md shadow-sm"
-            />
+          )}
+          <div className="absolute bottom-0 left-0 p-8">
+             <div className="bg-background/80 backdrop-blur-md border border-border px-4 py-2 flex items-center gap-3">
+                <Zap size={12} className="text-brand-primary" />
+                <span className="text-[0.6rem] font-bold tracking-wider text-foreground opacity-60 uppercase">已开启电影级背景集成</span>
+             </div>
           </div>
+        </section>
+
+        {/* Editorial Body */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+           <div className="lg:col-span-8 space-y-12">
+              <div className="space-y-4">
+                <label className="text-[0.6rem] font-bold text-muted-foreground tracking-widest uppercase">文章标题</label>
+                <input 
+                  name="title" 
+                  value={formData.title} 
+                  onChange={handleChange} 
+                  placeholder="一段非凡旅程的开始..."
+                  className="w-full bg-transparent text-5xl font-display font-black tracking-tighter focus:outline-none placeholder:opacity-10"
+                />
+              </div>
+
+              <div className="space-y-4 pt-8 border-t border-border/50" data-color-mode={colorMode}>
+                <label className="text-[0.6rem] font-bold text-muted-foreground tracking-widest uppercase flex items-center gap-2">
+                  <Command size={12} />
+                  文稿内容
+                </label>
+                <div className="editorial-card overflow-hidden">
+                  <MDEditor
+                    value={formData.content}
+                    onChange={(val) => setFormData(p => ({...p, content: val || ''}))}
+                    height={600}
+                    preview="edit"
+                    className="!bg-transparent !border-none !shadow-none"
+                  />
+                </div>
+              </div>
+           </div>
+
+           {/* Metadata Sidebar */}
+           <div className="lg:col-span-4 space-y-12">
+              <div className=" editorial-card p-8 space-y-10 sticky top-12">
+                 <div className="space-y-4">
+                    <label className="text-[0.6rem] font-bold text-muted-foreground tracking-widest uppercase">发布状态</label>
+                    <select 
+                      name="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                      className="w-full bg-transparent border-b border-border py-2 text-xs font-bold tracking-widest focus:outline-none focus:border-brand-primary appearance-none transition-colors"
+                    >
+                      <option value="draft">仍在阴影中 (草稿)</option>
+                      <option value="published">点亮星系 (公开发布)</option>
+                    </select>
+                 </div>
+
+                 <div className="space-y-4 pt-6 border-t border-border/50">
+                    <label className="text-[0.6rem] font-bold text-muted-foreground tracking-widest uppercase">分类与标签</label>
+                    <Select 
+                      isMulti
+                      options={TAG_OPTIONS}
+                      value={TAG_OPTIONS.filter(o => formData.tags.includes(o.value))}
+                      onChange={(s) => setFormData(p => ({...p, tags: s ? s.map(v => v.value) : []}))}
+                      unstyled
+                      classNames={{
+                        control: (state) => `flex min-h-[40px] w-full border-b border-border bg-transparent py-1 text-xs font-bold transition-all ${state.isFocused ? 'border-brand-primary' : ''}`,
+                        multiValue: () => "bg-muted/30 border border-border px-2 py-0.5 mr-1 mb-1 text-[0.6rem] tracking-widest uppercase font-bold",
+                        placeholder: () => "text-muted-foreground/30",
+                        input: () => "text-foreground",
+                        menu: () => "bg-background border border-border mt-2 p-1 overflow-hidden shadow-2xl",
+                        option: (state) => `p-3 text-[0.65rem] font-bold tracking-widest uppercase transition-colors ${state.isFocused ? 'bg-muted' : ''} ${state.isSelected ? 'text-brand-primary' : ''}`
+                      }}
+                      placeholder="添加视角..."
+                    />
+                 </div>
+
+                 <div className="space-y-4 pt-6 border-t border-border/50">
+                    <label className="text-[0.6rem] font-bold text-muted-foreground tracking-widest uppercase">文章摘要 / 总结</label>
+                    <textarea 
+                      name="abstract" 
+                      value={formData.abstract} 
+                      onChange={handleChange} 
+                      placeholder="浓缩此番思考的精华..."
+                      className="w-full bg-transparent border border-border p-4 h-32 text-xs font-medium leading-loose focus:outline-none focus:border-brand-primary transition-colors custom-scrollbar"
+                    />
+                 </div>
+              </div>
+           </div>
         </div>
       </form>
     </div>

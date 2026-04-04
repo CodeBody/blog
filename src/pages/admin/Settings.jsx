@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useBlog } from '../../context/BlogContext';
-import { Save, User, Link as LinkIcon } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/common/Card';
-import { Button } from '../../components/common/Button';
-import { Input } from '../../components/common/Input';
-import { Textarea } from '../../components/common/Textarea';
+import { Save, User, Link as LinkIcon, Camera, AtSign, Globe } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Settings() {
   const { profile, updateProfile } = useBlog();
@@ -54,132 +51,149 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in max-w-4xl mx-auto pb-12">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-6">
+    <div className="space-y-12 pb-20">
+      {/* Page Header */}
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 border-b border-border pb-8"
+      >
         <div>
-          <h1 className="text-3xl font-display font-bold tracking-tight mb-1">Admin Settings</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage your blog profile and preferences.</p>
+          <h1 className="text-4xl font-display font-black tracking-tight mb-3">系统偏好</h1>
+          <p className="text-muted-foreground text-sm font-sans tracking-wide font-bold opacity-60">构建你的数字存在与身份。</p>
         </div>
-        <Button onClick={handleSubmit} className="flex-1 sm:flex-none shadow-glow">
-          <Save size={16} className="mr-2" />
-          {isSaved ? 'Saved!' : 'Save Changes'}
-        </Button>
-      </div>
+        <button 
+          onClick={handleSubmit} 
+          className="btn-primary group flex items-center gap-2"
+        >
+          <Save size={16} className="transition-transform group-hover:scale-110 duration-300" />
+          {isSaved ? '配置已保存' : '保存更改'}
+        </button>
+      </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-8 mt-8">
-        <div className="md:col-span-1 space-y-6">
-          <Card className="border-border/40 shadow-xl shadow-black/5 bg-background/50 backdrop-blur-xl group">
-            <CardHeader>
-              <CardTitle className="text-xl font-display">Profile Picture</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center space-y-6 pb-8">
-              <div className="w-36 h-36 rounded-[2rem] overflow-hidden border-2 border-brand-primary/20 shadow-glow relative group transition-all duration-500 hover:scale-105 hover:border-brand-primary">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Left Side: Identity Preview */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="lg:col-span-4"
+        >
+          <div className="editorial-card p-8 flex flex-col items-center text-center space-y-8 sticky top-32">
+            <div className="relative group">
+              <div className="w-40 h-40 rounded-none border border-border p-1 bg-background relative overflow-hidden transition-all duration-700 group-hover:border-brand-primary/50">
                 <img 
                   src={formData.avatar || "https://api.dicebear.com/7.x/notionists/svg?seed=Admin"} 
                   alt="Avatar Preview" 
-                  className="w-full h-full object-cover bg-muted/50 transition-transform duration-700 ease-out group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                  <Camera size={24} className="text-white" />
+                </div>
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-brand-primary rounded-none flex items-center justify-center text-white shadow-xl">
+                <AtSign size={14} />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-display text-2xl font-bold tracking-tight">{formData.name || '未命名用户'}</h3>
+              <p className="text-[0.65rem] font-bold text-muted-foreground tracking-widest uppercase">视觉身份预览</p>
+            </div>
+            
+            <div className="w-12 h-[1px] bg-border mx-auto" />
+            
+            <p className="text-xs text-muted-foreground leading-loose italic px-4">
+              "{formData.bio || '无声胜有声。'}"
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Right Side: Configuration Forms */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="lg:col-span-8 space-y-12"
+        >
+          {/* Personal Information */}
+          <section className="space-y-8">
+            <div className="flex items-center gap-4">
+              <User size={20} className="text-brand-primary" />
+              <h2 className="font-display text-xl font-bold tracking-tight">身份信息</h2>
+              <div className="h-[1px] flex-1 bg-border/50" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-3">
+                <label className="text-[0.65rem] font-bold text-muted-foreground tracking-widest uppercase">显示名称</label>
+                <input 
+                  name="name" 
+                  value={formData.name} 
+                  onChange={handleChange} 
+                  placeholder="例如：夏了个天"
+                  className="w-full bg-transparent border-b border-border py-3 text-sm font-bold tracking-widest focus:outline-none focus:border-brand-primary transition-colors placeholder:opacity-20"
                 />
               </div>
-              <div className="w-full space-y-2 text-center text-sm text-muted-foreground">
-                 <p>Avatar visual preview</p>
+              
+              <div className="space-y-3">
+                <label className="text-[0.65rem] font-bold text-muted-foreground tracking-widest uppercase">头像地址 (URL)</label>
+                <input 
+                  name="avatar" 
+                  value={formData.avatar} 
+                  onChange={handleChange} 
+                  placeholder="HTTPS://..."
+                  className="w-full bg-transparent border-b border-border py-3 text-sm font-bold tracking-widest focus:outline-none focus:border-brand-primary transition-colors placeholder:opacity-20"
+                />
               </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        <div className="md:col-span-2 space-y-6">
-          <Card className="border-border/40 shadow-xl shadow-black/5 bg-background/50 backdrop-blur-xl">
-            <form onSubmit={handleSubmit}>
-              <CardHeader>
-                <CardTitle className="text-xl font-display flex items-center gap-2">
-                  <User size={20} className="text-brand-primary" />
-                  Personal Information
-                </CardTitle>
-                <CardDescription>Details displayed on your public profile and articles.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Display Name</label>
-                  <Input 
-                    name="name" 
-                    value={formData.name} 
-                    onChange={handleChange} 
-                    placeholder="e.g. Alex Dev"
-                    required
-                    className="bg-background border-border/50 focus:border-brand-primary"
-                  />
-                </div>
-                
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Avatar Image URL</label>
-                  <Input 
-                    name="avatar" 
-                    value={formData.avatar} 
-                    onChange={handleChange} 
-                    placeholder="https://example.com/avatar.jpg"
-                    className="bg-background border-border/50"
-                  />
-                  <p className="text-xs text-muted-foreground">Leave empty to use a default placeholder.</p>
-                </div>
+              <div className="space-y-3 md:col-span-2">
+                <label className="text-[0.65rem] font-bold text-muted-foreground tracking-widest uppercase">个人简介</label>
+                <textarea 
+                  name="bio" 
+                  value={formData.bio} 
+                  onChange={handleChange} 
+                  placeholder="分享你的哲学或简介..."
+                  className="w-full bg-transparent border border-border p-4 h-32 text-sm font-medium leading-loose focus:outline-none focus:border-brand-primary transition-colors custom-scrollbar"
+                />
+              </div>
+            </div>
+          </section>
 
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Short Bio</label>
-                  <Textarea 
-                    name="bio" 
-                    value={formData.bio} 
-                    onChange={handleChange} 
-                    placeholder="Tell visitors a bit about yourself..."
-                    className="h-24 bg-background border-border/50 focus:border-brand-primary"
-                  />
-                </div>
-              </CardContent>
-            </form>
-          </Card>
+          {/* Social Connectivity */}
+          <section className="space-y-8 pt-8">
+            <div className="flex items-center gap-4">
+              <Globe size={20} className="text-brand-primary" />
+              <h2 className="font-display text-xl font-bold tracking-tight">社交网络</h2>
+              <div className="h-[1px] flex-1 bg-border/50" />
+            </div>
 
-          <Card className="border-border/40 shadow-xl shadow-black/5 bg-background/50 backdrop-blur-xl">
-            <form onSubmit={handleSubmit}>
-              <CardHeader>
-                <CardTitle className="text-xl font-display flex items-center gap-2">
-                  <LinkIcon size={20} className="text-brand-primary" />
-                  Social Links
-                </CardTitle>
-                <CardDescription>Connect your profiles to build your online presence.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">GitHub Profile</label>
-                  <Input 
-                    name="github" 
-                    value={formData.github} 
-                    onChange={handleChange} 
-                    placeholder="https://github.com/username"
-                    className="bg-background border-border/50 focus:border-brand-primary transition-colors"
-                  />
+            <div className="space-y-8">
+              {[
+                { name: 'github', label: 'GitHub 主页', placeholder: 'GITHUB.COM/USERNAME' },
+                { name: 'twitter', label: 'Twitter 账号', placeholder: 'TWITTER.COM/USERNAME' },
+                { name: 'linkedin', label: 'LinkedIn 主页', placeholder: 'LINKEDIN.COM/IN/USERNAME' }
+              ].map((social) => (
+                <div key={social.name} className="flex items-center gap-8 group">
+                  <div className="w-32 hidden md:block">
+                     <label className="text-[0.6rem] font-bold text-muted-foreground tracking-widest uppercase">{social.label}</label>
+                  </div>
+                  <div className="flex-1 relative">
+                    <input 
+                      name={social.name} 
+                      value={formData[social.name]} 
+                      onChange={handleChange} 
+                      placeholder={social.placeholder}
+                      className="w-full bg-transparent border-b border-border py-3 text-xs font-bold tracking-widest focus:outline-none focus:border-brand-primary transition-colors placeholder:opacity-20"
+                    />
+                    <LinkIcon className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/20 group-focus-within:text-brand-primary transition-colors" />
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Twitter Profile</label>
-                  <Input 
-                    name="twitter" 
-                    value={formData.twitter} 
-                    onChange={handleChange} 
-                    placeholder="https://twitter.com/username"
-                    className="bg-background border-border/50 focus:border-brand-primary transition-colors"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">LinkedIn Profile</label>
-                  <Input 
-                    name="linkedin" 
-                    value={formData.linkedin} 
-                    onChange={handleChange} 
-                    placeholder="https://linkedin.com/in/username"
-                    className="bg-background border-border/50 focus:border-brand-primary transition-colors"
-                  />
-                </div>
-              </CardContent>
-            </form>
-          </Card>
-        </div>
+              ))}
+            </div>
+          </section>
+        </motion.div>
       </div>
     </div>
   );

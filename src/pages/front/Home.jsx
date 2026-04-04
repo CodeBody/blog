@@ -43,26 +43,6 @@ const ArticleCard = ({ article, index }) => (
     transition={{ duration: 0.8, delay: (index % 3) * 0.15, ease: [0.16, 1, 0.3, 1] }}
     className="group flex flex-col bg-background-secondary border border-border rounded-xl flex-hidden overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
   >
-    <Link to={`/article/${article.id}`} className="block relative w-full pt-[65%] overflow-hidden border-b border-border">
-      <motion.img 
-        src={article.coverImage || `https://images.unsplash.com/photo-${1500000000000 + (parseInt(article.id) * 1234 || 1)}?auto=format&fit=crop&w=800&q=80`} 
-        alt={article.title}
-        onError={(e) => {
-          e.target.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${article.id}&backgroundColor=ffffff,f7f7f7&textColor=1a1a1a`;
-        }}
-        className="absolute inset-0 w-full h-full object-cover"
-        loading="lazy"
-        whileHover={{ scale: 1.08 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      />
-      <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors duration-500 pointer-events-none"></div>
-      {article.categoryName && (
-        <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm text-foreground px-3 py-1 text-xs font-sans tracking-widest border border-border rounded-sm">
-          {article.categoryName}
-        </div>
-      )}
-    </Link>
-    
     <div className="flex-1 flex flex-col p-7">
       <div className="flex justify-between items-center text-[0.8rem] text-muted-foreground tracking-widest font-sans mb-4 border-b border-border pb-3">
         <time dateTime={article.date}>{formatDate(article.date)}</time>
@@ -76,7 +56,7 @@ const ArticleCard = ({ article, index }) => (
       </h3>
       
       <p className="text-[0.95rem] text-muted-foreground line-clamp-3 leading-loose font-sans font-normal">
-        {article.abstract}
+        {article.content.replace(/[#*`]/g, '').substring(0, 150)}...
       </p>
     </div>
   </motion.article>
@@ -90,7 +70,7 @@ export default function Home() {
   
   const isAllArticles = location.pathname === '/articles';
   const isCategoryFilter = !!categoryId;
-  
+
   const [email, setEmail] = useState('');
   
   // Pagination & Search State

@@ -28,12 +28,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private final TagMapper tagMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Article getArticleDetailAndAddViews(Long id) {
+        // Atomic increment in DB
+        baseMapper.incrementViews(id);
+        
+        // Fetch article detail
         Article article = this.getById(id);
         if (article != null) {
-            // Updating views directly on database for MVP
-            article.setViews((article.getViews() == null ? 0 : article.getViews()) + 1);
-            this.updateById(article);
             populateTags(article);
         }
         return article;

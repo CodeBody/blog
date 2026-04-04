@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBlog } from '../../context/BlogContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -13,11 +13,15 @@ import {
 } from 'lucide-react';
 
 export default function Categories() {
-  const { categories, articles, addCategory, updateCategory, deleteCategory } = useBlog();
+  const { categories, addCategory, updateCategory, deleteCategory, fetchCategories } = useBlog();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const filtered = (categories || []).filter(c => 
     c.name?.toLowerCase().includes(search.toLowerCase())
@@ -137,7 +141,6 @@ export default function Categories() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
           {filtered.map((cat, idx) => {
-            const artCount = (articles || []).filter(a => String(a.categoryId) === String(cat.id)).length;
             return (
               <motion.div 
                 key={cat.id} 
@@ -166,7 +169,7 @@ export default function Categories() {
                 
                 <div className="pt-6 border-t border-border/40 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[0.6rem] font-black uppercase tracking-[0.1em] text-muted-foreground/40">
-                    <FileText size={12} className="text-primary/50" /> {artCount} Articles
+                    <FileText size={12} className="text-primary/50" /> {cat.articleCount || 0} Articles
                   </div>
                   <div className="text-[0.6rem] font-black text-muted-foreground/20 italic tracking-widest uppercase">ID: {cat.id}</div>
                 </div>

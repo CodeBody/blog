@@ -26,36 +26,24 @@ import {
 } from 'recharts';
 
 export default function Dashboard() {
-  const { articles, categories } = useBlog();
+  const { dashboardStats, fetchDashboardData } = useBlog();
   const [isMounted, setIsMounted] = React.useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+    fetchDashboardData();
   }, []);
 
-  // Stats calculation
-  const totalViews = articles.reduce((sum, article) => sum + (article.views || 0), 0);
-  const publishedCount = articles.filter(a => a.status === 'published').length;
-  const draftCount = articles.length - publishedCount;
+  if (!dashboardStats) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
-  // Chart Data: Articles per Category
-  const categoryData = categories.map(cat => ({
-    name: cat.name,
-    value: articles.filter(a => String(a.categoryId) === String(cat.id)).length
-  })).filter(d => d.value > 0);
-
-  // Mock Trend Data (Articles created over last 7 days)
-  const last7Days = [...Array(7)].map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    return d.toISOString().split('T')[0];
-  });
-
-  const trendData = last7Days.map(date => ({
-    date: date.split('-').slice(1).join('/'),
-    views: Math.floor(Math.random() * 500) + 100, // Mocked for demo
-    articles: (articles || []).filter(a => a.date?.startsWith(date)).length
-  }));
+  // Stats from backend
+  const { totalArticles, publishedArticles, draftArticles, totalViews, categoryDistribution, trendData } = dashboardStats;
 
   const COLORS = ['#6366F1', '#A855F7', '#EC4899', '#3B82F6'];
 
@@ -74,10 +62,10 @@ export default function Dashboard() {
       {/* Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: '文章总数', value: (articles || []).length, icon: <FileText size={20}/>, trend: '+12% 从上月' },
-          { label: '已发布内容', value: (articles || []).filter(a => a.status === 'published').length, icon: <CheckCircle2 size={20}/>, trend: '稳定运行中' },
+          { label: '文章总数', value: totalArticles, icon: <FileText size={20}/>, trend: '+12% 从上月' },
+          { label: '已发布内容', value: publishedArticles, icon: <CheckCircle2 size={20}/>, trend: '稳定运行中' },
           { label: '全站累计访问', value: totalViews.toLocaleString(), icon: <Eye size={20}/>, trend: '+8.4% 增长' },
-          { label: '草稿箱', value: (articles || []).length - (articles || []).filter(a => a.status === 'published').length, icon: <BarChart3 size={20}/>, trend: '待发布内容' }
+          { label: '草稿箱', value: draftArticles, icon: <BarChart3 size={20}/>, trend: '待发布内容' }
         ].map((stat, idx) => (
           <motion.div 
             key={idx} 
@@ -177,11 +165,11 @@ export default function Dashboard() {
             <Layers size={20} className="text-muted-foreground opacity-30" />
           </div>
           <div className="h-[300px] w-full flex flex-col items-center justify-center" style={{ minHeight: '300px', minWidth: '100%' }}>
-            {isMounted && categoryData.length > 0 ? (
+            {isMounted && categoryDistribution.length > 0 ? (
               <ResponsiveContainer width="100%" height="80%" minWidth={0} minHeight={0} debounce={1}>
                 <PieChart>
                   <Pie
-                    data={categoryData}
+                    data={categoryDistribution}
                     cx="50%"
                     cy="50%"
                     innerRadius={65}
@@ -191,7 +179,7 @@ export default function Dashboard() {
                     animationDuration={1500}
                     stroke="none"
                   >
-                    {categoryData.map((entry, index) => (
+                    {categoryDistribution.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -207,7 +195,7 @@ export default function Dashboard() {
               </div>
             )}
             <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-full mt-2">
-              {categoryData.slice(0, 4).map((cat, idx) => (
+              {categoryDistribution.slice(0, 4).map((cat, idx) => (
                 <div key={idx} className="flex items-center gap-2 overflow-hidden">
                   <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
                   <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-tight truncate">{cat.name}</span>
@@ -218,51 +206,6 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      {/* Recent Activity List */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.8 }}
-        className="glass-card rounded-[2.5rem] overflow-hidden"
-      >
-        <div className="px-10 py-8 border-b border-border/40 flex items-center justify-between bg-muted/10">
-          <div>
-            <h2 className="font-display text-2xl font-black tracking-tight">近期创作</h2>
-            <p className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-50">Latest Editorial Updates</p>
-          </div>
-          <button className="px-5 py-2 rounded-xl bg-background border border-border/50 text-[0.65rem] font-black text-primary uppercase tracking-widest flex items-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-            全部内容 <ArrowUpRight size={14} strokeWidth={2.5} />
-          </button>
-        </div>
-        <div className="divide-y divide-border/20 px-4">
-          {articles.slice(0, 5).map((article, idx) => (
-            <motion.div 
-              key={article.id} 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8 + (idx * 0.1) }}
-              className="px-6 py-6 hover:bg-muted/5 transition-all duration-500 group rounded-3xl"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-display text-lg font-bold group-hover:text-primary transition-colors truncate">{article.title}</h3>
-                  <div className="flex items-center gap-4 mt-1">
-                    <p className="text-[0.65rem] text-muted-foreground uppercase tracking-widest font-black opacity-30">
-                      {new Date(article.date).toLocaleDateString('cn-ZH', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
-                    <div className="flex items-center gap-1 text-[0.65rem] font-black text-muted-foreground/30">
-                       <Eye size={12} /> {article.views} 访问
-                    </div>
-                  </div>
-                </div>
-                <div className={`px-4 py-1.5 rounded-full text-[0.55rem] font-black uppercase tracking-[0.1em] shadow-sm ${article.status === 'published' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'}`}>
-                  {article.status === 'published' ? '已发布' : '草稿'}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
     </div>
   );
 }

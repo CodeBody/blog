@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBlog } from '../../context/BlogContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -13,11 +13,15 @@ import {
 } from 'lucide-react';
 
 export default function Tags() {
-  const { tags, articles, addTag, updateTag, deleteTag } = useBlog();
+  const { tags, addTag, updateTag, deleteTag, fetchTags } = useBlog();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ name: '' });
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    fetchTags();
+  }, []);
 
   const filtered = (tags || []).filter(t => 
     t.name?.toLowerCase().includes(search.toLowerCase())
@@ -183,7 +187,7 @@ export default function Tags() {
               <div className="mt-10 pt-5 border-t border-border/30 relative z-10 flex items-center justify-between">
                 <div className="flex flex-col">
                   <span className="text-[0.55rem] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">Articles</span>
-                  <span className="text-sm font-display font-black text-foreground/60">0</span>
+                  <span className="text-sm font-display font-black text-foreground/60">{tag.articleCount || 0}</span>
                 </div>
                 <div className="px-3 py-1 rounded-full bg-muted/50 text-[0.55rem] font-black text-muted-foreground/60 uppercase tracking-tighter ring-1 ring-border/50">
                   Global Tag

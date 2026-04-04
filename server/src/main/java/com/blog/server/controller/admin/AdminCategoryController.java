@@ -1,7 +1,10 @@
 package com.blog.server.controller.admin;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.server.common.Result;
+import com.blog.server.entity.Article;
 import com.blog.server.entity.Category;
+import com.blog.server.service.ArticleService;
 import com.blog.server.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +18,16 @@ import java.util.List;
 public class AdminCategoryController {
 
     private final CategoryService categoryService;
+    private final ArticleService articleService;
 
     @GetMapping
     public Result<List<Category>> list() {
-        return Result.success(categoryService.list());
+        List<Category> list = categoryService.list();
+        for (Category category : list) {
+            long count = articleService.count(new LambdaQueryWrapper<Article>().eq(Article::getCategoryId, category.getId()));
+            category.setArticleCount((int) count);
+        }
+        return Result.success(list);
     }
 
     @PostMapping

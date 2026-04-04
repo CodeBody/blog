@@ -13,7 +13,7 @@ import {
 import { FaGithub } from 'react-icons/fa6';
 
 export default function Settings() {
-  const { profile, updateProfile } = useBlog();
+  const { profile, updateProfile, fetchProfile } = useBlog();
   const [formData, setFormData] = useState({
     name: '',
     bio: '',
@@ -23,6 +23,10 @@ export default function Settings() {
     linkedin: ''
   });
   const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     if (profile) {

@@ -7,10 +7,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminLayout() {
   const { logout } = useAuth();
-  const { profile } = useBlog();
+  const { profile, fetchProfile } = useBlog();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('theme') !== 'light';
@@ -56,7 +60,7 @@ export default function AdminLayout() {
               </div>
               <div>
                 <span className="font-display text-xl font-black tracking-tight block leading-none">
-                  编辑器<span className="text-primary">.</span>
+                  博客后台管理<span className="text-primary">.</span>
                 </span>
                 <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground font-bold opacity-60 mt-1">Content Hub</p>
               </div>

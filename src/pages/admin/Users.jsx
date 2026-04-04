@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useBlog } from '../../context/BlogContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -16,11 +16,15 @@ import {
 import { FaGithub } from 'react-icons/fa6';
 
 export default function Users() {
-  const { users, addUser, updateUser, deleteUser } = useBlog();
+  const { users, addUser, updateUser, deleteUser, fetchUsers } = useBlog();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ username: '', nickname: '', role: 'USER', email: '', avatar: '' });
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const filtered = (users || []).filter(u => 
     u.username?.toLowerCase().includes(search.toLowerCase()) || 

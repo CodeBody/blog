@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useBlog } from '../../context/BlogContext';
 import { 
@@ -8,17 +8,20 @@ import {
   Eye, 
   Search, 
   AlertCircle, 
-  MoreHorizontal,
   Filter
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDate } from '../../utils';
 
 export default function Posts() {
-  const { articles, deleteArticle } = useBlog();
+  const { articles, deleteArticle, fetchArticles } = useBlog();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState([]);
+
+  useEffect(() => {
+    fetchArticles();
+  }, []);
 
   const filtered = articles.filter(a => 
     a.title.toLowerCase().includes(search.toLowerCase())
@@ -185,7 +188,7 @@ export default function Posts() {
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <div className="flex items-center justify-end gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-all duration-300 lg:translate-x-4 group-hover:translate-x-0">
+                    <div className="flex items-center justify-end gap-2 opacity-100 transition-all duration-300">
                       <button 
                         onClick={() => window.open(`/article/${article.id}`, '_blank')} 
                         className="w-9 h-9 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 hover:shadow-lg transition-all"
@@ -207,9 +210,6 @@ export default function Posts() {
                       >
                         <Trash2 size={16} />
                       </button>
-                    </div>
-                    <div className="lg:group-hover:hidden flex justify-end pr-2 text-muted-foreground/20">
-                       <MoreHorizontal size={20} />
                     </div>
                   </td>
                 </motion.tr>

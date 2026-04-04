@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useBlog } from '../../context/BlogContext';
 import { formatDate } from '../../utils';
@@ -41,7 +41,7 @@ const ArticleCard = ({ article, index }) => (
     whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
     viewport={{ once: true, margin: "-50px" }}
     transition={{ duration: 0.8, delay: (index % 3) * 0.15, ease: [0.16, 1, 0.3, 1] }}
-    className="group flex flex-col bg-background-secondary border border-border rounded-xl flex-hidden overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-2"
+    className="group flex flex-col bg-background-secondary border border-border rounded-xl flex-hidden overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
   >
     <Link to={`/article/${article.id}`} className="block relative w-full pt-[65%] overflow-hidden border-b border-border">
       <motion.img 
@@ -84,18 +84,30 @@ const ArticleCard = ({ article, index }) => (
 
 export default function Home() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { categoryId } = useParams();
+  const { articles, categories, fetchArticles, fetchCategories } = useBlog();
   
   const isAllArticles = location.pathname === '/articles';
   const isCategoryFilter = !!categoryId;
   
-  const { articles, categories } = useBlog();
   const [email, setEmail] = useState('');
   
   // Pagination & Search State
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const ITEMS_PER_PAGE = 9;
+
+  useEffect(() => {
+    if (!isAllArticles && !isCategoryFilter) {
+      // Home page: Only fetch the first 6 for recent updates
+      fetchArticles(1, 6);
+    } else {
+      // All Articles or Category: Fetch with standard size
+      fetchArticles(currentPage, ITEMS_PER_PAGE, categoryId);
+    }
+    fetchCategories();
+  }, [location.pathname, categoryId, currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);

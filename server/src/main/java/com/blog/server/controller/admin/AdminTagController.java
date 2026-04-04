@@ -1,7 +1,10 @@
 package com.blog.server.controller.admin;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.server.common.Result;
+import com.blog.server.entity.ArticleTag;
 import com.blog.server.entity.Tag;
+import com.blog.server.mapper.ArticleTagMapper;
 import com.blog.server.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +18,16 @@ import java.util.List;
 public class AdminTagController {
 
     private final TagService tagService;
+    private final ArticleTagMapper articleTagMapper;
 
     @GetMapping
     public Result<List<Tag>> list() {
-        return Result.success(tagService.list());
+        List<Tag> list = tagService.list();
+        for (Tag tag : list) {
+            long count = articleTagMapper.selectCount(new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getTagId, tag.getId()));
+            tag.setArticleCount((int) count);
+        }
+        return Result.success(list);
     }
 
     @PostMapping

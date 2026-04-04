@@ -10,19 +10,24 @@ import { Button } from '../../components/common/Button';
 export default function ArticleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { articles, categories } = useBlog();
+  const { categories, fetchCategories, fetchSingleArticle } = useBlog();
   const [article, setArticle] = useState(null);
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const found = articles.find(a => a.id === id && a.status === 'published');
-    if (found) {
-      setArticle(found);
-    } else {
-      navigate('/404');
-    }
-  }, [id, articles, navigate]);
+    const loadData = async () => {
+      setLoading(true);
+      await fetchCategories();
+      const data = await fetchSingleArticle(id);
+      if (data) {
+        setArticle(data);
+      } else {
+        navigate('/404');
+      }
+      setLoading(false);
+    };
+    loadData();
+  }, [id]);
 
   if (!article) return <div className="animate-pulse space-y-4 max-w-3xl mx-auto mt-12"><div className="h-4 bg-muted w-1/4 rounded"></div><div className="h-10 bg-muted w-3/4 rounded"></div><div className="h-64 bg-muted w-full rounded"></div></div>;
 

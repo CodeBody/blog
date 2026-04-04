@@ -1,6 +1,8 @@
-export const fetchArticles = async () => {
+export const fetchArticles = async (page = 1, size = 50, categoryId = null) => {
   try {
-    const res = await fetch('/api/articles?page=1&size=50');
+    let url = `/api/articles?page=${page}&size=${size}`;
+    if (categoryId) url += `&categoryId=${categoryId}`;
+    const res = await fetch(url);
     const data = await res.json();
     if (data.code === 200) {
       return data.data.records.map(adaptArticle);
@@ -9,6 +11,19 @@ export const fetchArticles = async () => {
     console.error('Fetch articles error:', error);
   }
   return [];
+};
+
+export const fetchArticleById = async (id) => {
+  try {
+    const res = await fetch(`/api/articles/${id}`);
+    const data = await res.json();
+    if (data.code === 200) {
+      return adaptArticle(data.data);
+    }
+  } catch (error) {
+    console.error('Fetch article by id error:', error);
+  }
+  return null;
 };
 
 export const fetchCategories = async () => {
@@ -162,6 +177,19 @@ export const deleteArticleApi = async (id) => {
     method: 'DELETE'
   });
   return res.json();
+};
+
+export const fetchDashboardStats = async () => {
+  try {
+    const res = await fetch('/api/admin/dashboard/stats');
+    const data = await res.json();
+    if (data.code === 200) {
+      return data.data;
+    }
+  } catch (error) {
+    console.error('Fetch dashboard stats error:', error);
+  }
+  return null;
 };
 
 export const fetchAdminProfile = async () => {

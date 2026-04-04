@@ -31,9 +31,9 @@ public class ArticleController {
             queryWrapper.eq(Article::getCategoryId, categoryId);
         }
         
-        queryWrapper.orderByDesc(Article::getCreatedAt);
-
-        return Result.success(articleService.page(pageParam, queryWrapper));
+        Page<Article> resultPage = articleService.page(pageParam, queryWrapper);
+        resultPage.getRecords().forEach(articleService::populateTags);
+        return Result.success(resultPage);
     }
 
     @GetMapping("/{id}")

@@ -34,6 +34,54 @@ const fadeUp = {
   }
 };
 
+const ArticleCard = ({ article, index }) => (
+  <motion.article 
+    key={article.id} 
+    initial={{ opacity: 0, y: 50, rotateX: 5 }}
+    whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 0.8, delay: (index % 3) * 0.15, ease: [0.16, 1, 0.3, 1] }}
+    className="group flex flex-col bg-background-secondary border border-border rounded-xl flex-hidden overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-2"
+  >
+    <Link to={`/article/${article.id}`} className="block relative w-full pt-[65%] overflow-hidden border-b border-border">
+      <motion.img 
+        src={article.coverImage || `https://images.unsplash.com/photo-${1500000000000 + (parseInt(article.id) * 1234 || 1)}?auto=format&fit=crop&w=800&q=80`} 
+        alt={article.title}
+        onError={(e) => {
+          e.target.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${article.id}&backgroundColor=ffffff,f7f7f7&textColor=1a1a1a`;
+        }}
+        className="absolute inset-0 w-full h-full object-cover"
+        loading="lazy"
+        whileHover={{ scale: 1.08 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      />
+      <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors duration-500 pointer-events-none"></div>
+      {article.categoryName && (
+        <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm text-foreground px-3 py-1 text-xs font-sans tracking-widest border border-border rounded-sm">
+          {article.categoryName}
+        </div>
+      )}
+    </Link>
+    
+    <div className="flex-1 flex flex-col p-7">
+      <div className="flex justify-between items-center text-[0.8rem] text-muted-foreground tracking-widest font-sans mb-4 border-b border-border pb-3">
+        <time dateTime={article.date}>{formatDate(article.date)}</time>
+        <span>{Math.ceil(article.content.length / 1000)} MIN READ</span>
+      </div>
+      
+      <h3 className="font-display text-[1.3rem] font-bold mb-3 leading-[1.4] tracking-wider relative">
+        <Link to={`/article/${article.id}`} className="hover:text-brand-primary transition-colors">
+          {article.title}
+        </Link>
+      </h3>
+      
+      <p className="text-[0.95rem] text-muted-foreground line-clamp-3 leading-loose font-sans font-normal">
+        {article.abstract}
+      </p>
+    </div>
+  </motion.article>
+);
+
 export default function Home() {
   const location = useLocation();
   const { categoryId } = useParams();
@@ -57,7 +105,10 @@ export default function Home() {
     }
   }, [searchQuery, location.pathname, categoryId]);
 
-  const publishedArticles = articles.filter(a => a.status === 'published');
+  const publishedArticles = articles.filter(a => a.status === 'published').map(a => ({
+    ...a,
+    categoryName: categories.find(c => String(c.id) === String(a.categoryId))?.name || 'Uncategorized'
+  }));
   
   const filteredArticles = isAllArticles || isCategoryFilter
     ? publishedArticles.filter(a => {
@@ -204,61 +255,57 @@ export default function Home() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-          {displayedArticles.length > 0 ? displayedArticles.map((article, index) => (
-             <motion.article 
-              key={article.id} 
-              initial={{ opacity: 0, y: 50, rotateX: 5 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.8, delay: (index % 3) * 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="group flex flex-col bg-background-secondary border border-border rounded-xl flex-hidden overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-2"
-            >
-              <Link to={`/article/${article.id}`} className="block relative w-full pt-[65%] overflow-hidden border-b border-border">
-                <motion.img 
-                  src={article.coverImage || `https://images.unsplash.com/photo-${1500000000000 + (parseInt(article.id) * 1234 || 1)}?auto=format&fit=crop&w=800&q=80`} 
-                  alt={article.title}
-                  onError={(e) => {
-                    e.target.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${article.id}&backgroundColor=ffffff,f7f7f7&textColor=1a1a1a`;
-                  }}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
-                  whileHover={{ scale: 1.08 }}
-                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                />
-                <div className="absolute inset-0 bg-background/0 group-hover:bg-background/10 transition-colors duration-500 pointer-events-none"></div>
-                {article.tags[0] && (
-                  <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm text-foreground px-3 py-1 text-xs font-sans tracking-widest border border-border rounded-sm">
-                    {article.tags[0]}
-                  </div>
-                )}
-              </Link>
+        {isAllArticles ? (
+          /* Grouped by Category View */
+          <div className="space-y-24">
+            {categories.map((category) => {
+              const categoryArticles = filteredArticles.filter(
+                (a) => String(a.categoryId) === String(category.id)
+              );
               
-              <div className="flex-1 flex flex-col p-7">
-                <div className="flex justify-between items-center text-[0.8rem] text-muted-foreground tracking-widest font-sans mb-4 border-b border-border pb-3">
-                  <time dateTime={article.date}>{formatDate(article.date)}</time>
-                  <span>{Math.ceil(article.content.length / 1000)} MIN READ</span>
-                </div>
-                
-                <h3 className="font-display text-[1.3rem] font-bold mb-3 leading-[1.4] tracking-wider relative">
-                  <Link to={`/article/${article.id}`} className="hover:text-brand-primary transition-colors">
-                    {article.title}
-                  </Link>
-                </h3>
-                
-                <p className="text-[0.95rem] text-muted-foreground line-clamp-3 leading-loose font-sans font-normal">
-                  {article.abstract}
-                </p>
-              </div>
-            </motion.article>
-          )) : (
-            <div className="col-span-full text-center py-20 text-muted-foreground text-lg tracking-widest font-sans">
-              未找到相关内容。
-            </div>
-          )}
-        </div>
+              if (categoryArticles.length === 0) return null;
 
-        {isAllArticles && filteredArticles.length > 0 && (
+              return (
+                <div key={category.id} className="space-y-10">
+                  <div className="flex items-center gap-4">
+                    <h3 className="font-display text-[1.5rem] font-bold tracking-[0.15em] text-foreground border-l-4 border-brand-primary pl-4">
+                      {category.name}
+                    </h3>
+                    <div className="h-[1px] flex-1 bg-border/50"></div>
+                    <span className="text-xs font-sans tracking-widest text-muted-foreground uppercase">
+                      {categoryArticles.length} Articles
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+                    {categoryArticles.map((article, index) => (
+                      <ArticleCard key={article.id} article={article} index={index} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            
+            {filteredArticles.length === 0 && (
+              <div className="text-center py-20 text-muted-foreground text-lg tracking-widest font-sans">
+                未找到相关内容。
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Original Flat Grid View (Recent Updates or Category Filter) */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+            {displayedArticles.length > 0 ? displayedArticles.map((article, index) => (
+               <ArticleCard key={article.id} article={article} index={index} />
+            )) : (
+              <div className="col-span-full text-center py-20 text-muted-foreground text-lg tracking-widest font-sans">
+                未找到相关内容。
+              </div>
+            )}
+          </div>
+        )}
+
+        {isAllArticles && filteredArticles.length > 0 && searchQuery === '' && (
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

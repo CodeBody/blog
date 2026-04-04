@@ -10,7 +10,7 @@ import { Button } from '../../components/common/Button';
 export default function ArticleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { articles } = useBlog();
+  const { articles, categories } = useBlog();
   const [article, setArticle] = useState(null);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -33,13 +33,6 @@ export default function ArticleDetail() {
           <ChevronLeft size={16} className="mr-1 group-hover:-translate-x-1 transition-transform" /> Back to latest insights
         </Link>
         
-        <div className="flex gap-2 mb-6">
-          {article.tags.map(tag => (
-            <span key={tag} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-primary/10 text-primary border-transparent uppercase tracking-wider">
-              {tag}
-            </span>
-          ))}
-        </div>
 
         {article.coverImage && (
           <div className="w-full aspect-video sm:aspect-[2/1] rounded-2xl overflow-hidden mb-10 border border-border shadow-md bg-muted relative group">
@@ -70,6 +63,24 @@ export default function ArticleDetail() {
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {article.content}
         </ReactMarkdown>
+      </div>
+      
+      {/* Category and Tags at the bottom */}
+      <div className="mt-12 flex flex-wrap gap-3 items-center border-t border-border/30 pt-10">
+        <span className="text-[0.75rem] font-bold text-muted-foreground mr-1 font-sans tracking-[0.2em] uppercase">Filed under:</span>
+        {(() => {
+          const category = categories.find(c => String(c.id) === String(article.categoryId));
+          return category ? (
+            <span key={category.id} className="inline-flex items-center rounded-full border border-brand-primary/20 px-3 py-1 text-[0.7rem] font-bold bg-brand-primary/10 text-brand-primary uppercase tracking-widest transition-colors hover:bg-brand-primary/20">
+              {category.name}
+            </span>
+          ) : null;
+        })()}
+        {article.tags && article.tags.map(tag => (
+          <span key={tag} className="inline-flex items-center rounded-full border border-border px-3 py-1 text-[0.7rem] font-bold bg-muted/50 text-muted-foreground uppercase tracking-widest transition-colors hover:bg-border">
+            {tag}
+          </span>
+        ))}
       </div>
 
       <div className="mt-16 pt-8 border-t border-border flex justify-between items-center sm:flex-row flex-col gap-4">

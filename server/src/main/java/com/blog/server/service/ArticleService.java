@@ -8,4 +8,5 @@ public interface ArticleService extends IService<Article> {
     Article getArticleDetailAndAddViews(Long id);
     void saveArticleWithTags(ArticleDTO dto);
     void updateArticleWithTags(ArticleDTO dto);
+    void populateTags(Article article);
 }

@@ -74,7 +74,7 @@ const adaptArticle = (item) => {
     content: item.content ? item.content.replace(/\\n/g, '\n') : '',
     author: "Admin", // Fallback for MVP since no Author join is setup
     date: item.publishedAt ? item.publishedAt.replace(' ', 'T') : new Date().toISOString(),
-    tags: ["React"], // Minimal stub 
+    tags: item.tags || [], 
     views: item.views || 0,
     status: item.status === 1 ? 'published' : 'draft',
     categoryId: String(item.categoryId)

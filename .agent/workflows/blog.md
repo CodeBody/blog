@@ -4,10 +4,14 @@ description: 生成"一天学会一个 AI Skill"系列博客文章的 SQL 插入
 
 # 生成 AI Skills 系列博客
 
-## 前置准备
+## 前置准备 (Research Stage)
 
-1. 用户提供要学习的 AI Skill 名称和官方文档链接
-2. 深入研读官方文档（SKILL.md、README、源码结构等）
+1. **研读文档**：深入研究 AI Skill 的 SKILL.md、源码和官方示例。
+2. **侦察数据库 (Research DB)** 💡：**必须**执行以下查询以获取最新的分类和标签：
+   ```bash
+   curl -s http://localhost:8080/api/admin/categories && curl -s http://localhost:8080/api/admin/tags
+   ```
+3. **智能匹配决策**：将拟定的分类/标签与现有数据比对。若名称高度相似（例如 `AI技术` vs `AI 技术`），务必使用**已有 ID** 以避免名称重复造成主逻辑混乱。
 
 ## 文章结构模板
 
@@ -57,18 +61,35 @@ description: 生成"一天学会一个 AI Skill"系列博客文章的 SQL 插入
 - **引用**：用 > 引用官方文档原文（中英文皆可）
 - **图标**：适当使用 emoji（📦✅❌💡⚠️📊📈）增强可读性
 
-## 输出格式
-
 生成一个完整的 SQL 插入脚本，保存到：
 ```
 server/src/main/resources/insert_[skill-name]_blog.sql
 ```
 
-SQL 脚本包含：
-1. 必要的分类数据（INSERT IGNORE）
-2. 必要的标签数据（INSERT IGNORE）
-3. 文章数据（含完整 MD 正文）
-4. 文章-标签关联数据
+SQL 脚本必须遵循以下**防重复**逻辑：
+1. **分类处理**：先获取分类 ID。`SET @cat_id = (SELECT id FROM categories WHERE name = '[分类名]' LIMIT 1);`。如果不存在，则提示用户或手动插入一个新分类。
+2. **标签处理**：对每个标签，使用 `INSERT INTO tags (id, name, created_at, updated_at) SELECT [随机大ID], '[标签名]', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM tags WHERE name = '[标签名]');`。
+3. **文章映射**：使用 `SET @article_id = [时间戳/随机大ID];`。
+4. **关联表**：使用 `INSERT INTO article_tags (article_id, tag_id) SELECT @article_id, id FROM tags WHERE name IN ('标签1', '标签2'...);`。
+
+### 推荐的 SQL 模版结构：
+```sql
+-- 1. 获取分类 ID
+SET @category_name = 'AI 技术';
+SET @category_id = (SELECT id FROM categories WHERE name = @category_name LIMIT 1);
+
+-- 2. 插入新标签（如果不存在）
+-- 示例：INSERT INTO tags (id, name, created_at, updated_at) SELECT 1712210000001, 'AI Skill', NOW(), NOW() FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM tags WHERE name = 'AI Skill');
+
+-- 3. 插入文章
+SET @article_id = 1712210000000; -- 请使用唯一的大整数 ID
+INSERT INTO articles (id, author_id, category_id, title, content, status, views, published_at, created_at, updated_at)
+VALUES (@article_id, 1, @category_id, '标题', '正文', 1, 0, NOW(), NOW(), NOW());
+
+-- 4. 关联标签
+INSERT INTO article_tags (article_id, tag_id)
+SELECT @article_id, id FROM tags WHERE name IN ('标签1', '标签2');
+```
 
 // turbo
 ### 参考已有文章的 ID 范围，避免冲突

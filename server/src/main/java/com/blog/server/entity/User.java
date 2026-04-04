@@ -14,7 +14,14 @@ public class User implements Serializable {
     private Long id;
     private String username;
     private String password;
+    private String nickname;
+    private String avatar;
+    private String bio;
+    private String github;
+    private String twitter;
+    private String linkedin;
     private String email;
+    private String role;
     private Date createdAt;
     private Date updatedAt;
 }

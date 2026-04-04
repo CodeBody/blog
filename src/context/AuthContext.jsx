@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { loginApi } from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -14,12 +15,16 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (password) => {
-    // Basic mock logic: any password works for demo, or hardcoded "admin123"
-    if (password === 'admin123') {
-      setIsAuthenticated(true);
-      localStorage.setItem('isBlogAdmin', 'true');
-      return true;
+  const login = async (username, password) => {
+    try {
+      const res = await loginApi(username, password);
+      if (res.code === 200) {
+        setIsAuthenticated(true);
+        localStorage.setItem('isBlogAdmin', 'true');
+        return true;
+      }
+    } catch (e) {
+      console.error('Login error:', e);
     }
     return false;
   };

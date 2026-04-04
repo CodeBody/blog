@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,44 +6,81 @@
 
 @layer base {
   :root {
-    --bg-primary: #F7F7F7;
-    --bg-secondary: #FFFFFF;
-    --bg-glass: rgba(247, 247, 247, 0.85);
-    --bg-glass-hover: rgba(247, 247, 247, 0.95);
-    --text-primary: #1A1A1A;
-    --text-secondary: #525252;
-    --text-muted: #A3A3A3;
-    
-    --brand-primary: #8B2626;
-    --brand-secondary: #1A1A1A;
-    --gradient-brand: none;
-    --gradient-glow: none;
-    
-    --border-color: rgba(0, 0, 0, 0.1);
-    --border-hover: rgba(0, 0, 0, 0.25);
-    --shadow-sm: none;
-    --shadow-md: none;
-    --shadow-glow: none;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+ 
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+ 
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221 83% 53%;
+ 
+    --radius: 0.75rem;
+
+    --brand-primary: #6366F1;
+    --brand-secondary: #4F46E5;
+    --brand-glow: rgba(99, 102, 241, 0.4);
+    --gradient-brand: linear-gradient(135deg, #6366F1 0%, #A855F7 100%);
+    --gradient-glow: radial-gradient(circle at center, var(--brand-glow) 0%, transparent 70%);
   }
-  
+ 
   .dark {
-    --bg-primary: #0F0F0F;
-    --bg-secondary: #171717;
-    --bg-glass: rgba(15, 15, 15, 0.85);
-    --bg-glass-hover: rgba(15, 15, 15, 0.95);
-    --text-primary: #EDEDED;
-    --text-secondary: #A3A3A3;
-    --text-muted: #525252;
-    
-    --border-color: rgba(255, 255, 255, 0.15);
-    --border-hover: rgba(255, 255, 255, 0.3);
-    --shadow-sm: none;
-    --shadow-md: none;
-    --shadow-glow: none;
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222 47% 6%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222 47% 4%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 12%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 12%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+
+    --brand-primary: #818CF8;
+    --brand-secondary: #6366F1;
+    --brand-glow: rgba(129, 140, 248, 0.25);
+    --gradient-brand: linear-gradient(135deg, #818CF8 0%, #C084FC 100%);
   }
 
   body {
-    @apply bg-background text-foreground antialiased transition-colors duration-300 ease-normal overflow-x-hidden;
+    @apply bg-background text-foreground antialiased transition-colors duration-500 ease-normal overflow-x-hidden;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
   
   html {
@@ -54,82 +91,64 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center px-[2rem] py-[0.75rem] bg-foreground text-background border border-foreground rounded-none font-medium tracking-widest text-[0.9rem] transition-all duration-300 focus:outline-none hover:bg-background hover:text-foreground;
+    @apply inline-flex items-center justify-center rounded-xl bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
   
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-[2rem] py-[0.75rem] border border-border bg-transparent text-foreground rounded-none font-sans tracking-widest text-[0.9rem] hover:border-foreground transition-all duration-300 focus:outline-none;
+    @apply inline-flex items-center justify-center rounded-xl border border-input bg-background px-8 py-3 text-sm font-semibold shadow-sm transition-all hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none;
   }
   
   .input-field {
-    @apply flex h-12 w-full rounded-lg border border-border bg-background px-4 py-3 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:border-brand-primary disabled:cursor-not-allowed disabled:opacity-50 transition-colors;
+    @apply flex h-11 w-full rounded-xl border border-input bg-transparent px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all;
+  }
+
+  .glass-card {
+    @apply bg-background/60 backdrop-blur-xl border border-border/50 shadow-premium;
   }
 }
 
 @layer utilities {
-  .gradient-text {
-    @apply text-foreground font-display;
+  .text-gradient {
+    @apply bg-gradient-brand bg-clip-text text-transparent;
   }
 
-  .cinematic-mask-left {
-    -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
-    mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
-  }
-
-  .cinematic-mask-bottom {
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
-  }
-
-  .editorial-card {
-    @apply bg-background-secondary border border-border transition-all duration-500 hover:shadow-glow hover:border-brand-primary;
+  .premium-blur {
+    @apply backdrop-blur-2xl bg-white/5;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full hover:bg-muted transition-colors;
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30 transition-colors;
   }
 }
 
 /* Custom Markdown Styles */
 .prose {
-  @apply text-foreground leading-relaxed;
+  @apply text-foreground leading-[1.8] font-sans;
 }
 .prose h1, .prose h2, .prose h3, .prose h4 {
-  @apply font-display font-bold mt-8 mb-4 text-foreground tracking-tight;
+  @apply font-display font-bold mt-12 mb-6 text-foreground tracking-tight;
 }
+.prose h1 { @apply text-4xl lg:text-5xl; }
+.prose h2 { @apply text-3xl; }
 .prose p {
-  @apply mb-4 text-muted-foreground;
+  @apply mb-6 text-muted-foreground text-lg;
 }
 .prose a {
-  @apply text-brand-secondary hover:underline;
-}
-.prose pre {
-  @apply bg-[#1e1e1e] rounded-xl p-6 overflow-x-auto mb-6 text-sm text-gray-300 shadow-sm border border-border;
-}
-.prose code {
-  @apply bg-background-secondary text-foreground px-1.5 py-0.5 rounded text-sm border border-border;
-}
-.prose pre code {
-  @apply bg-transparent text-gray-300 p-0 border-none;
-}
-.prose ul, .prose ol {
-  @apply ml-6 mb-4 text-muted-foreground;
-}
-.prose ul {
-  @apply list-disc;
-}
-.prose ol {
-  @apply list-decimal;
+  @apply text-primary font-medium underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all;
 }
 .prose blockquote {
-  @apply border-l-4 border-brand-primary pl-4 italic text-muted-foreground my-6 bg-glass p-4 rounded-r-xl;
+  @apply border-l-4 border-primary pl-6 italic text-foreground/80 my-10 bg-muted/30 p-8 rounded-r-2xl;
 }
 .prose img {
-  @apply max-w-full rounded-xl my-8 object-cover shadow-sm border border-border;
+  @apply rounded-2xl shadow-xl border border-border/50 my-12;
 }
+.prose pre {
+  @apply rounded-2xl p-8 bg-zinc-950 border border-white/10 shadow-2xl my-10;
+}
+

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, LogOut, Menu, X, Moon, Sun, Search, Bell } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, Menu, X, Moon, Sun, Search, Bell, Layers, Tag as TagIcon, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useBlog } from '../../context/BlogContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,7 +11,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('theme') !== 'light';
   });
@@ -34,29 +34,37 @@ export default function AdminLayout() {
   };
 
   const navItems = [
-    { label: '概览', icon: <LayoutDashboard size={18} />, path: '/admin' },
-    { label: '写作', icon: <FileText size={18} />, path: '/admin/article/new' },
-    { label: '偏好', icon: <Settings size={18} />, path: '/admin/settings' },
+    { label: '看板', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
+    { label: '写作', icon: <FileText size={20} />, path: '/admin/posts' },
+    { label: '分类', icon: <Layers size={20} />, path: '/admin/categories' },
+    { label: '标签', icon: <TagIcon size={20} />, path: '/admin/tags' },
+    { label: '用户', icon: <Users size={20} />, path: '/admin/users' },
+    { label: '设置', icon: <Settings size={20} />, path: '/admin/settings' },
   ];
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground transition-colors duration-500 font-sans selection:bg-brand-primary selection:text-white">
-      
-      {/* Editorial Navigation Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-background border-r border-border transition-transform duration-700 ease-[0.16,1,0.3,1] lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="h-full flex flex-col p-8 pt-12">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500 font-sans selection:bg-primary selection:text-primary-foreground">
+
+      {/* Floating Sidebar Navigation */}
+      <aside className={`fixed inset-y-4 left-4 z-50 w-[260px] rounded-3xl border border-border/50 bg-card/60 backdrop-blur-2xl shadow-xl transition-all duration-700 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-[110%]'}`}>
+        <div className="h-full flex flex-col p-6">
           {/* Brand */}
-          <div className="mb-16">
-            <Link to="/" className="group block">
-              <span className="font-display text-2xl font-black tracking-tighter text-foreground group-hover:text-brand-primary transition-colors duration-300">
-                编辑器<span className="text-brand-primary">.</span>
-              </span>
-              <p className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground mt-2 font-bold opacity-50">内容引擎</p>
+          <div className="px-2 mb-10 mt-2">
+            <Link to="/" className="group flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-brand flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform duration-500">
+                <FileText size={22} strokeWidth={2.5} />
+              </div>
+              <div>
+                <span className="font-display text-xl font-black tracking-tight block leading-none">
+                  编辑器<span className="text-primary">.</span>
+                </span>
+                <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground font-bold opacity-60 mt-1">Content Hub</p>
+              </div>
             </Link>
           </div>
 
           {/* Navigation Items */}
-          <nav className="flex-1 space-y-2">
+          <nav className="flex-1 space-y-1.5 overflow-y-auto custom-scrollbar pr-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path));
               return (
@@ -64,18 +72,18 @@ export default function AdminLayout() {
                   key={item.label}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`group flex items-center gap-4 px-4 py-3 transition-all duration-300 relative ${isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                  className={`group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative overflow-hidden ${isActive ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
                 >
-                  <span className={`transition-transform duration-500 ${isActive ? 'scale-110 text-brand-primary' : 'group-hover:translate-x-1'}`}>
+                  <span className={`transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:translate-x-1'}`}>
                     {item.icon}
                   </span>
-                  <span className={`text-sm font-semibold tracking-wide transition-all duration-300 ${isActive ? 'translate-x-1' : ''}`}>
+                  <span className="text-sm font-semibold tracking-wide">
                     {item.label}
                   </span>
                   {isActive && (
-                    <motion.div 
-                      layoutId="sidebar-active"
-                      className="absolute left-0 w-1 h-6 bg-brand-primary rounded-r-full"
+                    <motion.div
+                      layoutId="nav-active"
+                      className="absolute inset-0 bg-primary -z-10"
                       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     />
                   )}
@@ -85,74 +93,83 @@ export default function AdminLayout() {
           </nav>
 
           {/* User Profile & Footer Area */}
-          <div className="mt-auto space-y-8 pt-8 border-t border-border/50">
-            <div className="flex items-center gap-4 px-2">
-              <div className="w-10 h-10 rounded-full border border-border overflow-hidden bg-muted/20 p-0.5">
-                <img src={profile?.avatar || "https://api.dicebear.com/7.x/notionists/svg?seed=Admin"} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+          <div className="mt-6 pt-6 border-t border-border/40">
+            <div className="flex items-center gap-3 px-2 mb-6">
+              <div className="w-10 h-10 rounded-2xl border-2 border-background overflow-hidden bg-muted p-0 shadow-sm">
+                <img src={profile?.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${profile?.name || 'Admin'}`} alt="Avatar" className="w-full h-full object-cover" />
               </div>
-              <div className="overflow-hidden">
-                <p className="text-xs font-bold truncate tracking-tight">{profile?.name || '系统管理员'}</p>
-                <button onClick={handleLogout} className="text-[0.6rem] uppercase tracking-wider text-muted-foreground hover:text-brand-primary transition-colors flex items-center gap-1 font-bold">
-                  <LogOut size={10} /> 退出登录
-                </button>
+              <div className="flex-1 min-w-0">
+                <p className="text-[0.7rem] font-bold truncate tracking-tight">{profile?.name || '管理员'}</p>
+                <p className="text-[0.55rem] text-muted-foreground truncate uppercase tracking-[0.05em] font-black opacity-40">{profile?.role || '超级管理员'}</p>
               </div>
+              <button 
+                onClick={handleLogout} 
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                title="退出登录"
+              >
+                <LogOut size={16} />
+              </button>
             </div>
 
-            <div className="flex items-center justify-between px-2">
-              <button 
+            <div className="flex items-center justify-between px-1">
+              <button
                 onClick={toggleTheme}
-                className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground transition-all duration-300"
+                className="group flex-1 flex items-center justify-center gap-2 h-10 rounded-2xl border border-border/50 bg-background/50 hover:bg-accent hover:border-accent transition-all duration-300"
               >
-                {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+                {darkMode ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-indigo-500" />}
+                <span className="text-[0.6rem] font-bold uppercase tracking-widest">{darkMode ? '浅色' : '深色'}</span>
               </button>
-              <div className="text-[0.6rem] text-muted-foreground/30 font-bold tracking-[0.1em]">版本 2.0.4</div>
+              <div className="ml-4 text-[0.55rem] text-muted-foreground/30 font-black tracking-widest uppercase italic">V 2.1.0</div>
             </div>
           </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:pl-[280px] min-h-screen flex flex-col relative overflow-hidden">
-        
-        {/* Subtle Background Texture/Glow */}
-        <div className="absolute top-0 right-0 w-[60%] h-[40%] bg-brand-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-        
-        {/* Mobile Header */}
-        <header className="lg:hidden h-16 flex items-center justify-between px-6 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-40">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 text-muted-foreground hover:text-foreground">
-            <Menu size={20} />
-          </button>
-          <span className="font-display font-black tracking-tighter">编辑器.</span>
-          <div className="w-8" /> {/* Placeholder for balance */}
-        </header>
+      <div className="flex-1 lg:ml-[280px] min-h-screen flex flex-col relative transition-all duration-500">
 
-        {/* Desktop Top Bar (Minimalist) */}
-        <header className="hidden lg:flex h-20 items-center justify-end px-12 z-20">
-          <div className="flex items-center gap-6">
-            <div className="relative group hidden xl:block">
-              <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within:text-brand-primary transition-colors" />
+        {/* Ambient Glows */}
+        <div className="fixed top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/10 blur-[150px] rounded-full pointer-events-none -z-10 animate-pulse-glow" />
+        <div className="fixed bottom-[-10%] left-[20%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+
+        {/* Header */}
+        <header className="h-20 flex items-center justify-between px-6 lg:px-12 sticky top-0 z-40 bg-background/40 backdrop-blur-md">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2.5 rounded-2xl bg-card border border-border/50 text-muted-foreground hover:text-foreground shadow-sm">
+              <Menu size={20} />
+            </button>
+            <div className="hidden lg:block">
+               <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">Workspace / Admin</h2>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-2 px-4 h-10 rounded-2xl bg-card border border-border/50 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <Search size={16} className="text-muted-foreground/50" />
               <input 
                 type="text" 
-                placeholder="搜索..." 
-                className="bg-transparent pl-7 pr-4 py-2 text-[0.65rem] font-bold tracking-[0.1em] focus:outline-none placeholder:text-muted-foreground/30 w-48 transition-all focus:w-64" 
+                placeholder="搜索全局记录..." 
+                className="bg-transparent border-none outline-none text-xs font-semibold w-40 placeholder:text-muted-foreground/30 focus:w-56 transition-all"
               />
+              <span className="px-1.5 py-0.5 rounded-md bg-muted text-[0.55rem] font-black text-muted-foreground/50 border border-border/50">⌘ K</span>
             </div>
-            <button className="text-muted-foreground hover:text-foreground transition-colors relative">
+            
+            <button className="relative w-10 h-10 rounded-2xl bg-card border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:shadow-md transition-all">
               <Bell size={18} />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-primary rounded-full border-2 border-background" />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-destructive rounded-full border-2 border-card animate-pulse" />
             </button>
           </div>
         </header>
 
         {/* Page Container */}
-        <main className="flex-1 p-6 lg:p-12 lg:pt-4 relative z-10 max-w-7xl">
+        <main className="flex-1 p-6 lg:px-12 lg:pb-12 relative z-10 max-w-7xl mx-auto w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 1.02 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="h-full"
             >
               <Outlet />
@@ -163,7 +180,7 @@ export default function AdminLayout() {
 
       {/* Overlay for mobile sidebar */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm lg:hidden transition-all duration-500" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-background/40 backdrop-blur-sm lg:hidden transition-all duration-500" onClick={() => setSidebarOpen(false)} />
       )}
     </div>
   );

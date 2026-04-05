@@ -2,6 +2,7 @@ package com.blog.server.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -28,6 +29,9 @@ public class Article implements Serializable {
     private Date publishedAt;
     private Date createdAt;
     private Date updatedAt;
+
+    @TableLogic
+    private Integer deleted;
 
     @TableField(exist = false)
     private List<String> tags;

@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 public interface ArticleMapper extends BaseMapper<Article> {
-    @Select("SELECT COALESCE(SUM(views), 0) FROM articles")
+    @Select("SELECT COALESCE(SUM(views), 0) FROM articles WHERE deleted = 0")
     Integer getTotalViews();
 
     @Update("UPDATE articles SET views = views + 1 WHERE id = #{id}")

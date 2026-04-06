@@ -1,5 +1,5 @@
 ---
-description: 生成"一天学会一个 AI Skill"系列博客文章的 SQL 插入脚本。当用户想写新博客、学习新 AI 技能、或需要生成博客内容时使用。
+description: 生成"AI Skill"系列博客文章的 SQL 插入脚本。当用户想写新博客、学习新 AI 技能、或需要生成博客内容时使用。
 ---
 
 # 生成 AI Skills 系列博客
@@ -9,7 +9,7 @@ description: 生成"一天学会一个 AI Skill"系列博客文章的 SQL 插入
 1. **研读文档**：深入研究 AI Skill 的 SKILL.md、源码和官方示例。
 2. **侦察数据库 (Research DB)** 💡：**必须**执行以下查询以获取最新的分类和标签：
    ```bash
-   curl -s http://localhost:8080/api/admin/categories && curl -s http://localhost:8080/api/admin/tags
+   curl -s http://localhost:8080/api/categories && curl -s http://localhost:8080/api/tags
    ```
 3. **智能匹配决策**：将拟定的分类/标签与现有数据比对。若名称高度相似（例如 `AI技术` vs `AI 技术`），务必使用**已有 ID** 以避免名称重复造成主逻辑混乱。
 
@@ -61,9 +61,10 @@ description: 生成"一天学会一个 AI Skill"系列博客文章的 SQL 插入
 - **引用**：用 > 引用官方文档原文（中英文皆可）
 - **图标**：适当使用 emoji（📦✅❌💡⚠️📊📈）增强可读性
 
-生成一个完整的 SQL 插入脚本，保存到：
+生成一个完整的 SQL 插入脚本，双重保存到：
 ```
 server/src/main/resources/insert_[skill-name]_blog.sql
+sqls/insert_[skill-name]_blog.sql
 ```
 
 SQL 脚本必须遵循以下**防重复**逻辑：
@@ -94,7 +95,7 @@ SELECT @article_id, id FROM tags WHERE name IN ('标签1', '标签2');
 // turbo
 ### 参考已有文章的 ID 范围，避免冲突
 ```bash
-curl -s http://localhost:8080/api/admin/articles | python3 -m json.tool 2>/dev/null || echo "检查现有文章 ID"
+curl -s http://localhost:8080/api/articles | python3 -m json.tool 2>/dev/null || echo "检查现有文章 ID"
 ```
 
 ## 元信息

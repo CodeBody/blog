@@ -19,6 +19,6 @@ public class CategoryController {
 
     @GetMapping
     public Result<List<Category>> listCategories() {
-        return Result.success(categoryService.list());
+        return Result.success(categoryService.listWithArticleCount());
     }
 }

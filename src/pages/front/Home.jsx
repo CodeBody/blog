@@ -249,57 +249,47 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {isAllArticles ? (
-          /* Grouped by Category View */
-          <div className="space-y-24">
-            {categories.map((category) => {
-              const categoryArticles = filteredArticles.filter(
-                (a) => String(a.categoryId) === String(category.id)
-              );
-              
-              if (categoryArticles.length === 0) return null;
-
-              return (
-                <div key={category.id} className="space-y-10">
-                  <div className="flex items-center gap-4">
-                    <h3 className="font-display text-[1.5rem] font-bold tracking-[0.15em] text-foreground border-l-4 border-brand-primary pl-4">
-                      {category.name}
-                    </h3>
-                    <div className="h-[1px] flex-1 bg-border/50"></div>
-                    <span className="text-xs font-sans tracking-widest text-muted-foreground uppercase">
-                      {categoryArticles.length} 篇文章
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-                    {categoryArticles.map((article, index) => (
-                      <ArticleCard key={article.id} article={article} index={index} />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-            
-            {filteredArticles.length === 0 && (
-              <div className="text-center py-20 text-muted-foreground text-lg tracking-widest font-sans">
-                未找到相关内容。
-              </div>
-            )}
-          </div>
-        ) : (
-          /* Original Flat Grid View (Recent Updates or Category Filter) */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-            {displayedArticles.length > 0 ? displayedArticles.map((article, index) => (
-               <ArticleCard key={article.id} article={article} index={index} />
-            )) : (
-              <div className="col-span-full text-center py-20 text-muted-foreground text-lg tracking-widest font-sans">
-                未找到相关内容。
-              </div>
-            )}
+        {(isAllArticles || isCategoryFilter) && (
+          <div className="mb-12 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex items-center gap-3 min-w-max">
+              <button
+                onClick={() => navigate('/articles')}
+                className={`px-6 py-2 border rounded-none text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 ${
+                  !categoryId 
+                    ? 'bg-foreground text-background border-foreground shadow-[4px_4px_0_rgba(0,0,0,0.1)]' 
+                    : 'bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground'
+                }`}
+              >
+                全部 <span className="ml-2 opacity-40 font-mono italic">{categories.reduce((acc, c) => acc + (c.articleCount || 0), 0)}</span>
+              </button>
+              {categories.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => navigate(`/category/${cat.id}`)}
+                  className={`px-6 py-2 border rounded-none text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 ${
+                    String(categoryId) === String(cat.id)
+                      ? 'bg-brand-primary text-white border-brand-primary shadow-[4px_4px_0_rgba(var(--brand-primary-rgb),0.2)]'
+                      : 'bg-transparent text-muted-foreground border-border hover:border-brand-primary hover:text-brand-primary'
+                  }`}
+                >
+                  {cat.name} <span className="ml-2 opacity-40 font-mono italic">{cat.articleCount || 0}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        {isAllArticles && filteredArticles.length > 0 && searchQuery === '' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+          {displayedArticles.length > 0 ? displayedArticles.map((article, index) => (
+              <ArticleCard key={article.id} article={article} index={index} />
+          )) : (
+            <div className="col-span-full text-center py-20 text-muted-foreground text-lg tracking-widest font-sans">
+              未找到相关内容。
+            </div>
+          )}
+        </div>
+
+        {(isAllArticles || isCategoryFilter) && totalPages > 1 && searchQuery === '' && (
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

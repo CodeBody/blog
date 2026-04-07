@@ -142,6 +142,49 @@ const AtmosphereMaterial = (color) => {
   });
 };
 
+/**
+ * Deterministic color generation based on string ID or name
+ * Generates a vibrant HSL color that stays consistent for the same input
+ */
+export const getCategoryColor = (id, name) => {
+  const seed = `${id}-${name}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const h = Math.abs(hash) % 360 / 360;
+  const s = (65 + (Math.abs(hash >> 8) % 20)) / 100;
+  const l = (60 + (Math.abs(hash >> 16) % 15)) / 100;
+  
+  // HSL to RGB conversion
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+
+  const toHex = x => {
+    const hex = Math.round(x * 255).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+  
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
 function PlanetRings({ color, radius }) {
     return (
         <mesh rotation={[Math.PI / 2.5, 0, 0]}>
@@ -313,19 +356,6 @@ function OrbitalPath({ radius }) {
 }
 
 function GalaxyScene({ categories }) {
-  const colorPalette = useMemo(() => [
-    "#4f46e5", // Indigo
-    "#7c3aed", // Purple
-    "#0ea5e9", // Sky Blue
-    "#ec4899", // Pink
-    "#f59e0b", // Amber
-    "#10b981", // Emerald
-    "#6366f1", // Slate Blue
-    "#8b5cf6", // Violet
-    "#06b6d4", // Cyan
-    "#f43f5e", // Rose
-  ], []);
-
   const nodes = useMemo(() => {
     if (!categories) return [];
     return categories.map((cat, i) => {
@@ -338,12 +368,12 @@ function GalaxyScene({ categories }) {
         return { 
           ...cat, 
           position: [x, y, z],
-          color: colorPalette[i % colorPalette.length],
+          color: getCategoryColor(cat.id, cat.name),
           radius,
           hasRings: true // Unified component: All planets have rings
         };
     });
-  }, [categories, colorPalette]);
+  }, [categories]);
 
   return (
     <>

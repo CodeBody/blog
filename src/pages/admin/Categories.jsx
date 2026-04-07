@@ -12,6 +12,7 @@ import {
   Search
 } from 'lucide-react';
 import ConfirmModal from '../../components/common/ConfirmModal';
+import { getCategoryColor } from '../../components/common/KnowledgePlanet';
 
 export default function Categories() {
   const { categories, addCategory, updateCategory, deleteCategory, fetchCategories, showToast } = useBlog();
@@ -193,7 +194,13 @@ export default function Categories() {
                   <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   
                   <div className="flex justify-between items-start mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:rotate-6 shadow-sm transition-all duration-700">
+                    <div 
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:rotate-6 shadow-sm transition-all duration-700"
+                      style={{ 
+                        backgroundColor: `${getCategoryColor(cat.id, cat.name)}20`, // 20% opacity for background
+                        color: getCategoryColor(cat.id, cat.name)
+                      }}
+                    >
                       <Layers size={20} />
                     </div>
                     <div className="flex gap-2">

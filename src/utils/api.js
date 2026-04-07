@@ -43,10 +43,11 @@ export const fetchAdminArticles = async (page = 1, size = 10, categoryId = null)
   return { records: [], total: 0 }; 
 }; 
 
-export const fetchArticles = async (page = 1, size = 50, categoryId = null) => {
+export const fetchArticles = async (page = 1, size = 50, categoryId = null, keyword = '') => {
   try {
     let url = `/api/articles?page=${page}&size=${size}`;
     if (categoryId) url += `&categoryId=${categoryId}`;
+    if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data.code === 200) {
@@ -100,9 +101,11 @@ export const fetchCategories = async () => {
   return [];
 };
 
-export const fetchProjects = async () => {
+export const fetchProjects = async (page = 1, size = 6, title = '') => {
   try {
-    const res = await fetch('/api/projects');
+    let url = `/api/projects?page=${page}&size=${size}`;
+    if (title) url += `&title=${encodeURIComponent(title)}`;
+    const res = await fetch(url);
     const data = await res.json();
     if (data.code === 200) {
       return data.data;
@@ -110,7 +113,7 @@ export const fetchProjects = async () => {
   } catch (error) {
     console.error('Fetch projects error:', error);
   }
-  return [];
+  return { records: [], total: 0 };
 };
 
 export const fetchAdminProjects = async (page = 1, size = 10, title = '') => {

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useBlog } from '../../context/BlogContext';
-import { ArrowLeft, Save, Github, Globe, Type, Palette, Hash } from 'lucide-react';
+import { ArrowLeft, Save, Globe, Type, Palette, Hash } from 'lucide-react';
+import { FaGithub as Github } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import MDEditor from '@uiw/react-md-editor';
 import { fetchAdminProjectById } from '../../utils/api';

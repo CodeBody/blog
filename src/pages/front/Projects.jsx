@@ -6,28 +6,25 @@ import { useBlog } from '../../context/BlogContext';
 import { Pagination } from '../../components/common/Pagination';
 
 export default function Projects() {
-  const { projects, fetchProjects, loading } = useBlog();
+  const { projects, totalProjects, fetchProjects, loading } = useBlog();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchProjects(currentPage, ITEMS_PER_PAGE, searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [currentPage, searchQuery]);
 
   useEffect(() => {
     setCurrentPage(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [searchQuery]);
 
-  const filteredProjects = projects.filter(p => 
-    p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (p.tags && p.tags.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
-  const displayedProjects = filteredProjects.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalProjects / ITEMS_PER_PAGE);
+  const displayedProjects = projects;
 
 
   return (
@@ -112,7 +109,7 @@ export default function Projects() {
         </motion.div>
       )}
 
-      {filteredProjects.length > 0 && (
+      {projects.length > 0 && (
         <Pagination 
           currentPage={currentPage}
           totalPages={totalPages}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, LogOut, Menu, X, Moon, Sun, Search, Bell, Layers, Tag as TagIcon, Users } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, LogOut, Menu, X, Moon, Sun, Search, Bell, Layers, Tag as TagIcon, Users, FolderKanban } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useBlog } from '../../context/BlogContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,6 +41,7 @@ export default function AdminLayout() {
   const navItems = [
     { label: '看板', icon: <LayoutDashboard size={20} />, path: '/admin/dashboard' },
     { label: '写作', icon: <FileText size={20} />, path: '/admin/posts' },
+    { label: '项目', icon: <FolderKanban size={20} />, path: '/admin/projects' },
     { label: '分类', icon: <Layers size={20} />, path: '/admin/categories' },
     { label: '标签', icon: <TagIcon size={20} />, path: '/admin/tags' },
     { label: '用户', icon: <Users size={20} />, path: '/admin/users' },

@@ -77,17 +77,23 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const ITEMS_PER_PAGE = 9;
+  const totalPages = isAllArticles || isCategoryFilter
+    ? Math.ceil(totalArticles / ITEMS_PER_PAGE)
+    : 1;
 
   useEffect(() => {
-    if (!isAllArticles && !isCategoryFilter) {
-      // Home page: Only fetch the first 6 for recent updates
-      fetchArticles(1, 6);
-    } else {
-      // All Articles or Category: Fetch with standard size
-      fetchArticles(currentPage, ITEMS_PER_PAGE, categoryId);
-    }
+    const timer = setTimeout(() => {
+      if (!isAllArticles && !isCategoryFilter) {
+        // Home page: Only fetch the first 6 for recent updates
+        fetchArticles(1, 6);
+      } else {
+        // All Articles or Category: Fetch with standard size and search query
+        fetchArticles(currentPage, ITEMS_PER_PAGE, categoryId, searchQuery);
+      }
+    }, 300);
     fetchCategories();
-  }, [location.pathname, categoryId, currentPage]);
+    return () => clearTimeout(timer);
+  }, [location.pathname, categoryId, currentPage, searchQuery]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -97,31 +103,10 @@ export default function Home() {
     }
   }, [searchQuery, location.pathname, categoryId]);
 
-  const publishedArticles = articles.filter(a => a.status === 'published').map(a => ({
+  const displayedArticles = articles.map(a => ({
     ...a,
     categoryName: categories.find(c => String(c.id) === String(a.categoryId))?.name || 'Uncategorized'
   }));
-  
-  const filteredArticles = isAllArticles || isCategoryFilter
-    ? publishedArticles.filter(a => {
-        if (categoryId && a.categoryId !== categoryId) return false;
-        
-        if (searchQuery) {
-          return a.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                 a.abstract.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                 a.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
-        }
-        return true;
-      })
-    : publishedArticles;
-
-  const totalPages = isAllArticles || isCategoryFilter
-    ? Math.ceil(totalArticles / ITEMS_PER_PAGE)
-    : 1;
-
-  const displayedArticles = isAllArticles || isCategoryFilter
-    ? filteredArticles
-    : publishedArticles.slice(0, 6);
 
   const handleSubscribe = (e) => {
     e.preventDefault();

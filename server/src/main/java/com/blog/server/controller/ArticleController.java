@@ -19,7 +19,8 @@ public class ArticleController {
     public Result<Page<Article>> listArticles(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
-            @RequestParam(required = false) Long categoryId) {
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword) {
 
         Page<Article> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
@@ -30,6 +31,16 @@ public class ArticleController {
         if (categoryId != null) {
             queryWrapper.eq(Article::getCategoryId, categoryId);
         }
+
+        if (keyword != null && !keyword.isEmpty()) {
+            queryWrapper.and(wrapper -> wrapper
+                .like(Article::getTitle, keyword)
+                .or()
+                .like(Article::getContent, keyword)
+            );
+        }
+        
+        queryWrapper.orderByDesc(Article::getCreatedAt);
         
         Page<Article> resultPage = articleService.page(pageParam, queryWrapper);
         resultPage.getRecords().forEach(articleService::populateTags);

@@ -65,11 +65,11 @@ export const BlogProvider = ({ children }) => {
     setUsers(usrs || []);
   };
 
-  const fetchArticlesData = async (page = 1, size = 50, catId = null) => {
+  const fetchArticlesData = async (page = 1, size = 50, catId = null, keyword = '') => {
     setLoading(true);
-    const data = await fetchArticles(page, size, catId);
-    setArticles(data.records);
-    setTotalArticles(data.total);
+    const data = await fetchArticles(page, size, catId, keyword);
+    setArticles(data.records || []);
+    setTotalArticles(data.total || 0);
     setLoading(false);
   };
 
@@ -124,10 +124,11 @@ export const BlogProvider = ({ children }) => {
     setDashboardStats(stats);
   };
 
-  const fetchProjectsData = async () => {
+  const fetchProjectsData = async (page = 1, size = 6, title = '') => {
     setLoading(true);
-    const data = await fetchProjects();
-    setProjects(data || []);
+    const data = await fetchProjects(page, size, title);
+    setProjects(data.records || []);
+    setTotalProjects(data.total || 0);
     setLoading(false);
   };
 

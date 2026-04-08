@@ -2,6 +2,12 @@
 
 一个基于前沿技术栈构建的现代化全栈个人博客和作品集系统。具备优雅的响应式界面和稳健安全的后端架构。
 
+<div align="center">
+  <img src="./docs/front.png" alt="前端主页演示" width="800px" style="border-radius: 8px; margin-bottom: 20px;"/>
+  <br/>
+  <img src="./docs/admin.png" alt="博客后台管理" width="800px" style="border-radius: 8px;"/>
+</div>
+
 ## 🚀 技术栈
 
 ### 前端 (Frontend)

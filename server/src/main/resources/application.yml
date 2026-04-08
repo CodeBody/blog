@@ -40,3 +40,4 @@ spring:
     url: jdbc:mysql://103.112.186.48:3306/blog?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
     username: blog
     password: "LcyBnt637Wejy5KE"
+    

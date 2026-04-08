@@ -26,22 +26,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User login(String username, String password) {
-        log.info("====== 正在数据库中查找用户: {} ======", username);
+
         User user = this.getOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, username)
                 .last("LIMIT 1"));
         
         if (user == null) {
-            log.warn("====== 未找到用户: {} ======", username);
+
             return null;
         }
 
-        log.info("====== 找到用户: {}, 数据库中的密码哈希长度: {} ======", 
-            username, 
-            user.getPassword() != null ? user.getPassword().length() : 0);
+
 
         boolean isMatch = passwordEncoder.matches(password, user.getPassword());
-        log.info("====== BCrypt 比对结果: {} ======", isMatch);
+
 
         if (isMatch) {
             return user;

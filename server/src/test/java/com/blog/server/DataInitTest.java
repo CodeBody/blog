@@ -81,6 +81,6 @@ public class DataInitTest {
         at2.setTagId(t1.getId());
         articleTagMapper.insert(at2);
         
-        System.out.println("====== 测试数据插入成功 ======");
+
     }
 }

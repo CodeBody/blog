@@ -19,7 +19,6 @@ export const AuthProvider = ({ children }) => {
         return true;
       }
     } catch (e) {
-      console.error('Login error:', e);
     }
     return false;
   };

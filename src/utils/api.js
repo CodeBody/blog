@@ -13,7 +13,6 @@ const fetchWithAuth = async (url, options = {}) => {
   if (response.status === 401 || response.status === 403) {
     // 只有请求管理端接口失败时才强制跳转登录页
     if (url.includes('/api/admin/')) {
-      console.warn("认证失效或权限不足，跳转登录页...");
       localStorage.removeItem('blog_token');
       if (window.location.pathname !== '/admin/login') {
         window.location.href = '/admin/login';
@@ -38,7 +37,6 @@ export const fetchAdminArticles = async (page = 1, size = 10, categoryId = null)
       }; 
     } 
   } catch (error) { 
-    console.error("Fetch admin articles error:", error); 
   } 
   return { records: [], total: 0 }; 
 }; 
@@ -57,7 +55,6 @@ export const fetchArticles = async (page = 1, size = 50, categoryId = null, keyw
       };
     }
   } catch (error) {
-    console.error('Fetch articles error:', error);
   }
   return { records: [], total: 0 };
 };
@@ -70,7 +67,6 @@ export const fetchAdminArticleById = async (id) => {
       return adaptArticle(data.data);
     }
   } catch (error) {
-    console.error("Fetch admin article by id error:", error);
   }
   return null;
 };
@@ -83,7 +79,6 @@ export const fetchArticleById = async (id) => {
       return adaptArticle(data.data);
     }
   } catch (error) {
-    console.error('Fetch article by id error:', error);
   }
   return null;
 };
@@ -96,7 +91,6 @@ export const fetchCategories = async () => {
       return data.data;
     }
   } catch (error) {
-    console.error('Fetch categories error:', error);
   }
   return [];
 };
@@ -111,7 +105,6 @@ export const fetchProjects = async (page = 1, size = 6, title = '') => {
       return data.data;
     }
   } catch (error) {
-    console.error('Fetch projects error:', error);
   }
   return { records: [], total: 0 };
 };
@@ -126,7 +119,6 @@ export const fetchAdminProjects = async (page = 1, size = 10, title = '') => {
       return data.data;
     }
   } catch (error) {
-    console.error('Fetch admin projects error:', error);
   }
   return { records: [], total: 0 };
 };
@@ -139,7 +131,6 @@ export const fetchAdminProjectById = async (id) => {
       return data.data;
     }
   } catch (error) {
-    console.error('Fetch admin project by id error:', error);
   }
   return null;
 };
@@ -202,7 +193,6 @@ export const fetchTags = async () => {
       return data.data;
     }
   } catch (error) {
-    console.error('Fetch tags error:', error);
   }
   return [];
 };
@@ -240,7 +230,6 @@ export const fetchAllUsers = async () => {
       return data.data;
     }
   } catch (error) {
-    console.error('Fetch users error:', error);
   }
   return [];
 };
@@ -318,7 +307,6 @@ export const fetchDashboardStats = async () => {
       return data.data;
     }
   } catch (error) {
-    console.error('Fetch dashboard stats error:', error);
   }
   return null;
 };
@@ -331,7 +319,6 @@ export const fetchAdminProfile = async () => {
       return data.data;
     }
   } catch (error) {
-    console.error('Fetch admin profile error:', error);
   }
   return null;
 };
@@ -349,7 +336,6 @@ export const loginApi = async (username, password) => {
     }
     return data;
   } catch (error) {
-    console.error('Login API error:', error);
     return { code: 500, message: 'Server error' };
   }
 };

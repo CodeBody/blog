@@ -116,7 +116,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start mb-16 gap-8">
           <div className="text-center md:text-left">
             <a href="#" className="font-display text-[1.5rem] font-[800] tracking-[-0.03em] bg-foreground text-transparent bg-clip-text hover:gradient-text transition-all duration-300">
-              {profile?.name ? profile.name.split(' ')[0] + '.' : 'Alex.'}
+              {profile?.name ? profile.name.split(' ')[0] + '.' : 'CodeBody.'}
             </a>
             <p className="text-muted-foreground text-[0.95rem] mt-2">
               用心设计并建造。
@@ -144,7 +144,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-border pt-8 text-center text-[0.9rem] text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} {profile?.name ? profile.name.split(' ')[0] : 'Alex'}. 保留所有权利。</p>
+          <p>&copy; {new Date().getFullYear()} {profile?.name ? profile.name.split(' ')[0] : 'CodeBody'}. 保留所有权利。</p>
         </div>
       </div>
     </footer>
